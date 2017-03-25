@@ -74,8 +74,6 @@ public class ScoreMap {
         scoreMap.locator.add(visitedFieldsLocator);
         scoreMap.locator.add(foundItLocator);
 
-        scoreMap.updateGeneralScores();
-
         return scoreMap;
     }
 
@@ -142,25 +140,16 @@ public class ScoreMap {
             oldField.setField(updatedField);
         }
         turn = gameState.getTurn();
-        updateGeneralScores();
-    }
-
-    void updateGeneralScores() {
-        Arrays.stream(fieldWrappers).forEach(tile -> tile.setGeneralScore(0));
-        for (Scorer scorer : scorers) {
-            int[] scores = scorer.getScores(this);
-            for (FieldWrapper fieldWrapper : fieldWrappers) {
-                fieldWrapper.addGeneralScore(scores[fieldWrapper.getIndex()]);
-            }
-        }
     }
 
     public Move getMove() {
+        Scores scores = Scores.of(scorers, this);
+
         if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() == 1) {
             cursor = myGeneral;
         }
         FieldWrapper moveTo = Arrays.stream(cursor.getNeighbours())
-                .reduce((o1, o2) -> o1.getGeneralScore() > o2.getGeneralScore() ? o1 : o2)
+                .reduce(scores::getMax)
                 .get();
 //        log.info("Moving to {} with a score of {}", moveTo.getIndex(), moveTo.getGeneralScore());
         Move ret = new Move(cursor, moveTo);

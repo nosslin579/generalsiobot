@@ -9,7 +9,6 @@ public class FieldWrapper {
     public static final int UNSET = Integer.MIN_VALUE;
     private Field field;
     private FieldWrapper[] neighbours;
-    private int generalScore;
     private boolean viewed = false;
 
     public FieldWrapper(Field field) {
@@ -24,10 +23,6 @@ public class FieldWrapper {
         map.put(FieldTerrainType.MOUNTAIN, Type.OBSTACLE);
         map.put(FieldTerrainType.OWNED, Type.OWN);
         return map.get(terrainType);
-    }
-
-    public void addGeneralScore(int score) {
-        generalScore += score;
     }
 
     public boolean isMine() {
@@ -57,9 +52,9 @@ public class FieldWrapper {
     }
 
     /**
-     * Key=Index, Value=Distance to field with index
+     * Key=Index, Value=Distance to field with index or null if unreachable
      */
-    public Map<Integer, Integer> getDistancesDynamic() {
+    public Map<Integer, Integer> getDistancesDynamic(int distanceModifier) {
         Map<Integer, Integer> distances = new HashMap<>();
         distances.put(field.getIndex(), 0);
         List<FieldTerrainType> obstacles = Arrays.asList(FieldTerrainType.FOG_OBSTACLE, FieldTerrainType.MOUNTAIN);
@@ -71,21 +66,13 @@ public class FieldWrapper {
                 boolean isObstacle = obstacles.contains(neighbour.getTerrainType());
                 boolean isSet = distances.containsKey(neighbour.getIndex());
                 if (!isObstacle && !isSet && neighbour != field) {
-                    int newDistance = distances.get(t.getIndex()) + 1;
+                    int newDistance = distances.get(t.getIndex()) + distanceModifier;
                     distances.put(neighbour.getIndex(), newDistance);
                     que.addLast(neighbour);
                 }
             }
         }
         return distances;
-    }
-
-    public int getGeneralScore() {
-        return generalScore;
-    }
-
-    public void setGeneralScore(int generalScore) {
-        this.generalScore = generalScore;
     }
 
     public FieldWrapper[] getNeighbours() {
@@ -109,7 +96,6 @@ public class FieldWrapper {
         return "FieldWrapper{" +
                 "index=" + field.getIndex() +
                 ", field=" + field.getTerrainType() +
-                ", generalScore=" + generalScore +
                 '}';
     }
 }

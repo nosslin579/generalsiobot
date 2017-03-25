@@ -1,14 +1,19 @@
 package se.nosslin579.aardvark.scorer;
 
+import se.nosslin579.aardvark.FieldWrapper;
 import se.nosslin579.aardvark.ScoreMap;
+import se.nosslin579.aardvark.Scores;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MyFieldsScorer implements Scorer {
     @Override
-    public int[] getScores(ScoreMap scoreMap) {
-        int[] ret = new int[scoreMap.getFieldWrappers().length];
-        Arrays.stream(scoreMap.getFieldWrappers()).forEach(tile -> ret[tile.getIndex()] = tile.isMine() ? -1000 : 0);
-        return ret;
+    public Scores getScores(ScoreMap scoreMap) {
+        Map<Integer, Integer> collect = Arrays.stream(scoreMap.getFieldWrappers())
+                .filter(FieldWrapper::isMine)
+                .collect(Collectors.toMap(FieldWrapper::getIndex, fieldWrapper -> -1000));
+        return new Scores(collect);
     }
 }

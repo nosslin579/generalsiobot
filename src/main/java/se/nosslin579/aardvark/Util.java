@@ -16,7 +16,7 @@ public class Util {
     }
 
     public static int[] invertDistance(ScoreMap scoreMap, int fieldIndex) {
-        Map<Integer, Integer> distances = scoreMap.getTile(fieldIndex).getDistancesDynamic();
+        Map<Integer, Integer> distances = scoreMap.getTile(fieldIndex).getDistancesDynamic(1);
         int[] scores = new int[scoreMap.getFieldWrappers().length];
         for (int i = 0; i < scoreMap.getFieldWrappers().length; i++) {
             Integer distance = distances.get(i);
