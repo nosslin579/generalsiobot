@@ -10,10 +10,7 @@ import se.nosslin579.aardvark.locator.FoundItLocator;
 import se.nosslin579.aardvark.locator.Locator;
 import se.nosslin579.aardvark.locator.MirrorOwnGeneralLocator;
 import se.nosslin579.aardvark.locator.VisitedFieldsLocator;
-import se.nosslin579.aardvark.scorer.CityScorer;
-import se.nosslin579.aardvark.scorer.LocatorScorer;
-import se.nosslin579.aardvark.scorer.MountainScorer;
-import se.nosslin579.aardvark.scorer.Scorer;
+import se.nosslin579.aardvark.scorer.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +54,7 @@ public class ScoreMap {
             fieldWrapper.setNeighbours(objects);
         }
 
+        //add beans
         ScoreMap scoreMap = new ScoreMap(fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows());
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
@@ -65,6 +63,7 @@ public class ScoreMap {
         scoreMap.addBean(new CityScorer());
         scoreMap.addBean(new LocatorScorer(scoreMap.locator));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
+        scoreMap.addBean(new MyFieldsScorer());
 
         return scoreMap;
     }
@@ -116,11 +115,11 @@ public class ScoreMap {
 
     public void update(GameState gameState) {
         for (Field updatedField : gameState.getFields()) {
-            FieldWrapper oldField = fieldWrappers[updatedField.getIndex()];
-            if (!oldField.isViewed() && updatedField.isVisible()) {
+            FieldWrapper fw = fieldWrappers[updatedField.getIndex()];
+            if (!fw.isViewed() && updatedField.isVisible()) {
                 fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(updatedField.asVisibleField(), this));
             }
-            oldField.setField(updatedField);
+            fw.setField(updatedField);
         }
         turn = gameState.getTurn();
     }
@@ -128,13 +127,13 @@ public class ScoreMap {
     public Move getMove() {
         Scores scores = Scores.of(scorers, this);
 
-        if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() == 1) {
+        if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
             cursor = myGeneral;
         }
         FieldWrapper moveTo = Arrays.stream(cursor.getNeighbours())
                 .reduce(scores::getMax)
                 .get();
-//        log.info("Moving to {} with a score of {}", moveTo.getIndex(), moveTo.getGeneralScore());
+//        log.info("Moving to {} with a score of {}", moveTo.getIndex(), scores.getScore(moveTo.getIndex()));
         Move ret = new Move(cursor, moveTo);
         cursor = moveTo;
         return ret;

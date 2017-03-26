@@ -64,8 +64,10 @@ public class FieldWrapper {
             Field t = que.pop();
             for (Field neighbour : t.getNeighbours()) {
                 boolean isObstacle = obstacles.contains(neighbour.getTerrainType());
-                boolean isSet = distances.containsKey(neighbour.getIndex());
-                if (!isObstacle && !isSet && neighbour != field) {
+                boolean isFreeCity = neighbour.isVisible() && neighbour.asVisibleField().isCity() && !neighbour.asVisibleField().hasOwner();
+                boolean isAlreadySet = distances.containsKey(neighbour.getIndex());
+                boolean isSource = neighbour == field;
+                if (!isFreeCity && !isObstacle && !isAlreadySet && !isSource) {
                     int newDistance = distances.get(t.getIndex()) + distanceModifier;
                     distances.put(neighbour.getIndex(), newDistance);
                     que.addLast(neighbour);

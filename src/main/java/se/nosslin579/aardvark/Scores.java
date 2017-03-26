@@ -1,5 +1,7 @@
 package se.nosslin579.aardvark;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.nosslin579.aardvark.scorer.Scorer;
 
 import java.util.HashMap;
@@ -7,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Scores {
-
+    private final static Logger log = LoggerFactory.getLogger(Scores.class);
     private final Map<Integer, Integer> scores;
     private final int defaultValue;
 
@@ -40,6 +42,12 @@ public class Scores {
             ret.add(scores);
         }
         return ret;
+    }
+
+    public void log(Object source, int... index) {
+        for (int i : index) {
+            log.info("Scores from {} gave {} score {}", source.getClass().getSimpleName(), i, getScore(i));
+        }
     }
 
     public void add(Scores scores) {
