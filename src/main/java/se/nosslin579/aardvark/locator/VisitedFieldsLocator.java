@@ -9,7 +9,7 @@ public class VisitedFieldsLocator implements Locator, FieldListener {
 
     private Scores scores;
 
-    public VisitedFieldsLocator(ScoreMap scoreMap) {
+    public VisitedFieldsLocator() {
         scores = new Scores();
     }
 

@@ -57,24 +57,28 @@ public class ScoreMap {
             fieldWrapper.setNeighbours(objects);
         }
 
-        //update general score
         ScoreMap scoreMap = new ScoreMap(fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows());
-        VisitedFieldsLocator visitedFieldsLocator = new VisitedFieldsLocator(scoreMap);
-        FoundItLocator foundItLocator = new FoundItLocator();
-
-        scoreMap.fieldListeners.add(new SetViewedFieldListener());
-        scoreMap.fieldListeners.add(visitedFieldsLocator);
-        scoreMap.fieldListeners.add(foundItLocator);
-
-        scoreMap.scorers.add(new MountainScorer());
-        scoreMap.scorers.add(new CityScorer());
-        scoreMap.scorers.add(new LocatorScorer(scoreMap.locator));
-
-        scoreMap.locator.add(new MirrorOwnGeneralLocator(scoreMap));
-        scoreMap.locator.add(visitedFieldsLocator);
-        scoreMap.locator.add(foundItLocator);
+        scoreMap.addBean(new SetViewedFieldListener());
+        scoreMap.addBean(new VisitedFieldsLocator());
+        scoreMap.addBean(new FoundItLocator());
+        scoreMap.addBean(new MountainScorer());
+        scoreMap.addBean(new CityScorer());
+        scoreMap.addBean(new LocatorScorer(scoreMap.locator));
+        scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
 
         return scoreMap;
+    }
+
+    private void addBean(Object bean) {
+        if (bean instanceof FieldListener) {
+            fieldListeners.add((FieldListener) bean);
+        }
+        if (bean instanceof Locator) {
+            locator.add((Locator) bean);
+        }
+        if (bean instanceof Scorer) {
+            scorers.add((Scorer) bean);
+        }
     }
 
     public FieldWrapper getMyGeneral() {
