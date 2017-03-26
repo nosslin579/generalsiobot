@@ -3,7 +3,6 @@ package se.nosslin579.aardvark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
-import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 import pl.joegreen.sergeants.framework.model.GameState;
 import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
@@ -16,7 +15,9 @@ import se.nosslin579.aardvark.scorer.LocatorScorer;
 import se.nosslin579.aardvark.scorer.MountainScorer;
 import se.nosslin579.aardvark.scorer.Scorer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -44,7 +45,6 @@ public class ScoreMap {
         //populate fields and own general
         FieldWrapper ownGeneral = null;
         for (Field field : gameState.getFields()) {
-            int[] distances = getDistances(field, fieldWrappers.length);
             fieldWrappers[field.getIndex()] = new FieldWrapper(field);
             if (field.isVisible() && field.asVisibleField().isGeneral()) {
                 ownGeneral = fieldWrappers[field.getIndex()];
@@ -75,27 +75,6 @@ public class ScoreMap {
         scoreMap.locator.add(foundItLocator);
 
         return scoreMap;
-    }
-
-    private static int[] getDistances(Field field, int fields) {
-        int[] distances = new int[fields];
-        List<FieldTerrainType> obstacles = Arrays.asList(FieldTerrainType.FOG_OBSTACLE, FieldTerrainType.MOUNTAIN);
-        Deque<Field> que = new ArrayDeque<>();
-        que.add(field);
-        while (!que.isEmpty()) {
-            Field t = que.pop();
-            for (Field neighbour : t.getNeighbours()) {
-                if (obstacles.contains(neighbour.getTerrainType())) {
-                    //obstacles is unreachable
-                    distances[neighbour.getIndex()] = 6000;//config
-                } else if (distances[neighbour.getIndex()] == 0 && neighbour != field) {
-                    //neighbour distance is not set
-                    distances[neighbour.getIndex()] = distances[t.getIndex()] + 1;
-                    que.addLast(neighbour);
-                }
-            }
-        }
-        return distances;
     }
 
     public FieldWrapper getMyGeneral() {

@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.nosslin579.aardvark.ScoreMap;
 import se.nosslin579.aardvark.Scores;
-import se.nosslin579.aardvark.Util;
 import se.nosslin579.aardvark.locator.Locator;
 
 import java.util.List;
@@ -20,21 +19,18 @@ public class LocatorScorer implements Scorer {
 
     @Override
     public Scores getScores(ScoreMap scoreMap) {
-        int[] crownScores = getCrownScores(scoreMap);
-        int mostLikelyIndex = Util.getIndexOfMaxValue(crownScores);
-        log.info("Guessing general is at index: {} with a score of {}", mostLikelyIndex, crownScores[mostLikelyIndex]);
+        Scores crownScores = getCrownScores(scoreMap);
+        int mostLikelyIndex = crownScores.getMax();
+        log.info("Guessing general is at index: {} with a score of {}", mostLikelyIndex, crownScores.getScore(mostLikelyIndex));
         Map<Integer, Integer> distances = scoreMap.getTile(mostLikelyIndex).getDistancesDynamic(-1);
-        return new Scores(distances);
+        return new Scores(distances, -10000);//config
     }
 
-    private int[] getCrownScores(ScoreMap scoreMap) {
-        int[] scores = new int[scoreMap.getFieldWrappers().length];
-        for (Locator locator : locators) {
-            int[] locationScore = locator.getLocationScore();
-            for (int i = 0; i < scores.length; i++) {
-                scores[i] += locationScore[i];
-            }
-        }
+    private Scores getCrownScores(ScoreMap scoreMap) {
+        Scores scores = new Scores();
+        locators.stream()
+                .map(Locator::getLocationScore)
+                .forEach(scores::add);
         return scores;
     }
 }

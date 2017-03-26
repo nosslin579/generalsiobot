@@ -42,16 +42,26 @@ public class Scores {
         return ret;
     }
 
-    private void add(Scores scores) {
+    public void add(Scores scores) {
         for (Integer index : scores.scores.keySet()) {
             Integer score = scores.scores.get(index);
             add(index, score);
         }
     }
 
-    private void add(Integer index, Integer score) {
+    public void add(Integer index, Integer score) {
         Integer current = scores.getOrDefault(index, defaultValue);
         this.scores.put(index, score + current);
     }
 
+    public int getMax() {
+        return scores.entrySet().stream()
+                .reduce((e1, e2) -> e1.getValue() > e2.getValue() ? e1 : e2)
+                .get()
+                .getKey();
+    }
+
+    public Integer getScore(int index) {
+        return scores.getOrDefault(index, defaultValue);
+    }
 }
