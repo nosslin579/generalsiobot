@@ -3,18 +3,19 @@ package se.nosslin579.aardvark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
+import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 import pl.joegreen.sergeants.framework.model.GameState;
+import pl.joegreen.sergeants.framework.model.VisibleField;
 import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
 import se.nosslin579.aardvark.locator.FoundItLocator;
 import se.nosslin579.aardvark.locator.Locator;
 import se.nosslin579.aardvark.locator.MirrorOwnGeneralLocator;
 import se.nosslin579.aardvark.locator.VisitedFieldsLocator;
-import se.nosslin579.aardvark.scorer.*;
+import se.nosslin579.aardvark.scorer.LocatorScorer;
+import se.nosslin579.aardvark.scorer.Scorer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -59,11 +60,8 @@ public class ScoreMap {
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
         scoreMap.addBean(new FoundItLocator());
-        scoreMap.addBean(new MountainScorer());
-        scoreMap.addBean(new CityScorer());
         scoreMap.addBean(new LocatorScorer(scoreMap.locator));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
-        scoreMap.addBean(new MyFieldsScorer());
 
         return scoreMap;
     }
@@ -141,5 +139,29 @@ public class ScoreMap {
 
     public int getTurn() {
         return turn;
+    }
+
+    public Double getPenalty(FieldWrapper fieldWrapper) {
+        if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.FOG_OBSTACLE) {
+            return 1000d;
+        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.MOUNTAIN) {
+            return 1000d;
+        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.FOG) {
+            return 0.9d;
+        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.EMPTY) {
+            return 0.9d;
+        } else if (fieldWrapper.getField().isVisible()) {
+            VisibleField visibleField = fieldWrapper.getField().asVisibleField();
+            if (visibleField.isOwnedByMe()) {
+                Map<Integer, Double> own = new HashMap<>();
+                own.put(1, 1.5d);
+                own.put(2, .9d);
+                own.put(3, .8d);
+                return own.getOrDefault(visibleField.getArmy(), .7d);
+            } else {
+                return 0.9d;
+            }
+        }
+        throw new IllegalArgumentException("No penalty found for " + fieldWrapper.getIndex());
     }
 }
