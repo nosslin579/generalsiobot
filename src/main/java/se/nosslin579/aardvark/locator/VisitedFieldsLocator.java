@@ -20,6 +20,6 @@ public class VisitedFieldsLocator implements Locator, FieldListener {
 
     @Override
     public void onFieldFound(VisibleField fieldFound, ScoreMap scoreMap) {
-        scores.put(fieldFound.getIndex(), -20000);//config
+        scores.put(fieldFound.getIndex(), -20000d);//config
     }
 }

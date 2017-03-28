@@ -131,7 +131,7 @@ public class ScoreMap {
             cursor = myGeneral;
         }
         FieldWrapper moveTo = Arrays.stream(cursor.getNeighbours())
-                .reduce(scores::getMax)
+                .reduce(scores::getMin)
                 .get();
 //        log.info("Moving to {} with a score of {}", moveTo.getIndex(), scores.getScore(moveTo.getIndex()));
         Move ret = new Move(cursor, moveTo);

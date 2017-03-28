@@ -54,9 +54,9 @@ public class FieldWrapper {
     /**
      * Key=Index, Value=Distance to field with index or null if unreachable
      */
-    public Map<Integer, Integer> getDistancesDynamic(int distanceModifier) {
-        Map<Integer, Integer> distances = new HashMap<>();
-        distances.put(field.getIndex(), 0);
+    public Map<Integer, Double> getDistancesDynamic(int distanceModifier) {
+        Map<Integer, Double> distances = new HashMap<>();
+        distances.put(field.getIndex(), 0d);
         List<FieldTerrainType> obstacles = Arrays.asList(FieldTerrainType.FOG_OBSTACLE, FieldTerrainType.MOUNTAIN);
         Deque<Field> que = new ArrayDeque<>();
         que.add(field);
@@ -68,7 +68,7 @@ public class FieldWrapper {
                 boolean isAlreadySet = distances.containsKey(neighbour.getIndex());
                 boolean isSource = neighbour == field;
                 if (!isFreeCity && !isObstacle && !isAlreadySet && !isSource) {
-                    int newDistance = distances.get(t.getIndex()) + distanceModifier;
+                    Double newDistance = distances.get(t.getIndex()) + distanceModifier;
                     distances.put(neighbour.getIndex(), newDistance);
                     que.addLast(neighbour);
                 }

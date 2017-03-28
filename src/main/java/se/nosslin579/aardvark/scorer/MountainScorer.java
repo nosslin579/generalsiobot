@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class MountainScorer implements Scorer {
     @Override
     public Scores getScores(ScoreMap scoreMap) {
-        Map<Integer, Integer> collect = Arrays.stream(scoreMap.getFieldWrappers())
+        Map<Integer, Double> collect = Arrays.stream(scoreMap.getFieldWrappers())
                 .map(FieldWrapper::getField)
                 .filter(Field::isObstacle)
-                .collect(Collectors.toMap(Field::getIndex, fw -> -10000));
-        return new Scores(collect, 0);
+                .collect(Collectors.toMap(Field::getIndex, fw -> 10000d));
+        return new Scores(collect, 0d);
     }
 }

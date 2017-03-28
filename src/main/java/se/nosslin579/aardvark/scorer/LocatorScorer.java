@@ -22,8 +22,8 @@ public class LocatorScorer implements Scorer {
         Scores crownScores = getCrownScores(scoreMap);
         int mostLikelyIndex = crownScores.getMax();
         log.info("Guessing general is at index: {} with a score of {}", mostLikelyIndex, crownScores.getScore(mostLikelyIndex));
-        Map<Integer, Integer> distances = scoreMap.getTile(mostLikelyIndex).getDistancesDynamic(-1);
-        return new Scores(distances, -10000);//config
+        Map<Integer, Double> distances = scoreMap.getTile(mostLikelyIndex).getDistancesDynamic(1);
+        return new Scores(distances, 10000d);//config
     }
 
     private Scores getCrownScores(ScoreMap scoreMap) {

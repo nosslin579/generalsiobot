@@ -14,8 +14,8 @@ public class MirrorOwnGeneralLocator implements Locator {
         int x = scoreMap.getWidth() - myGeneral.getX();
         int y = scoreMap.getHeight() - myGeneral.getY();
         FieldWrapper mostLikely = scoreMap.getTile(x, y);
-        Map<Integer, Integer> negativeDistances = mostLikely.getDistancesDynamic(-1);
-        scores = new Scores(negativeDistances, -10000);//config
+        Map<Integer, Double> negativeDistances = mostLikely.getDistancesDynamic(-1);
+        scores = new Scores(negativeDistances, -10000d);//config
     }
 
     @Override

@@ -16,7 +16,7 @@ public class CityScorer implements Scorer {
                 .map(FieldWrapper::getField)
                 .filter(Field::isVisible)
                 .map(Field::asVisibleField)
-                .forEach(field -> ret.put(field.getIndex(), field.isCity() ? -100000 : 0));
+                .forEach(field -> ret.put(field.getIndex(), field.isCity() ? 100000d : 0));
         return ret;
     }
 }

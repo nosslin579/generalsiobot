@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 public class MyFieldsScorer implements Scorer {
     @Override
     public Scores getScores(ScoreMap scoreMap) {
-        Map<Integer, Integer> collect = Arrays.stream(scoreMap.getFieldWrappers())
+        Map<Integer, Double> collect = Arrays.stream(scoreMap.getFieldWrappers())
                 .filter(FieldWrapper::isMine)
-                .collect(Collectors.toMap(FieldWrapper::getIndex, fieldWrapper -> -1000));
+                .collect(Collectors.toMap(FieldWrapper::getIndex, fieldWrapper -> 1d));
         return new Scores(collect);
     }
 }
