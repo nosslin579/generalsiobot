@@ -142,19 +142,4 @@ public class ScoreMap {
     public int getTurn() {
         return turn;
     }
-
-    /*
-    private static void setDistanceGeneral(int distance, List<Tile> tiles) {
-        List<Tile> next = new ArrayList<>();
-        for (Tile tile : tiles) {
-            if (tile.isMovable() && tile.getDistanceGeneral() == Tile.UNSET) {
-                tile.setDistanceGeneral(distance);
-                next.addAll(Arrays.asList(tile.getNeighbours()));
-            }
-        }
-        if (!next.isEmpty()) {
-            System.out.println(next.size() + " - " + distance);
-            setDistanceGeneral(distance + 1, next);
-        }
-    }*/
 }
