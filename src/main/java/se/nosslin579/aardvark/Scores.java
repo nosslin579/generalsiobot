@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.nosslin579.aardvark.scorer.Scorer;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,14 +74,36 @@ public class Scores {
                 .getKey();
     }
 
-    public int getIndexByLowestScore() {
-        return scores.entrySet().stream()
-                .reduce((e1, e2) -> e1.getValue() < e2.getValue() ? e1 : e2)
-                .get()
-                .getKey();
-    }
-
     public Double getScore(int index) {
         return scores.getOrDefault(index, defaultValue);
+    }
+
+    public boolean contains(FieldWrapper fieldWrapper) {
+        return scores.containsKey(fieldWrapper.getIndex());
+    }
+
+    public FieldWrapper getMin(FieldWrapper[] fieldWrappers) {
+        return Arrays.stream(fieldWrappers)
+                .filter(this::contains)
+                .reduce(this::getMin)
+                .get();
+    }
+
+
+    public void print(ScoreMap scoreMap) {
+        StringBuilder sb = new StringBuilder();
+        for (FieldWrapper fieldWrapper : scoreMap.getFieldWrappers()) {
+            if (fieldWrapper.getX() == 0) {
+                sb.append(System.lineSeparator());
+            }
+            Integer scoreAsInt = scores.getOrDefault(fieldWrapper.getIndex(), -100d).intValue();
+            String scoreAsString = scoreAsInt == -100 ? "--" : scoreAsInt.toString();
+            if (scoreAsString.length() == 1) {
+                sb.append(" ");
+            }
+            sb.append(scoreAsString).append(" ");
+        }
+        log.info(sb.toString());
+
     }
 }

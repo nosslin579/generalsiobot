@@ -6,23 +6,13 @@ import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 import java.util.*;
 
 public class FieldWrapper {
-    public static final int UNSET = Integer.MIN_VALUE;
     private Field field;
     private FieldWrapper[] neighbours;
     private boolean viewed = false;
+    private FieldType lastKnown = FieldType.UNKNOWN;
 
     public FieldWrapper(Field field) {
         this.field = field;
-    }
-
-    private static Type getField(FieldTerrainType terrainType) {
-        Map<FieldTerrainType, Type> map = new HashMap<>();
-        map.put(FieldTerrainType.EMPTY, Type.EMPTY);
-        map.put(FieldTerrainType.FOG, Type.EMPTY);
-        map.put(FieldTerrainType.FOG_OBSTACLE, Type.OBSTACLE);
-        map.put(FieldTerrainType.MOUNTAIN, Type.OBSTACLE);
-        map.put(FieldTerrainType.OWNED, Type.OWN);
-        return map.get(terrainType);
     }
 
     public boolean isMine() {
@@ -30,10 +20,9 @@ public class FieldWrapper {
     }
 
     public void setField(Field field) {
+        lastKnown = lastKnown.getByField(field);
         this.field = field;
     }
-
-    enum Type {EMPTY, ENEMY, OBSTACLE, OWN}
 
     public int getIndex() {
         return field.getIndex();
@@ -83,22 +72,35 @@ public class FieldWrapper {
     public Map<Integer, Double> getMovePenalty(ScoreMap scoreMap) {
         Map<Integer, Double> penalties = new HashMap<>();
         penalties.put(field.getIndex(), 0d);
-        List<FieldTerrainType> obstacles = Arrays.asList(FieldTerrainType.FOG_OBSTACLE, FieldTerrainType.MOUNTAIN);
         Deque<Integer> que = new ArrayDeque<>();
         que.add(getIndex());
         while (!que.isEmpty()) {
             FieldWrapper cursor = scoreMap.getTile(que.pop());
             for (Field f : cursor.getField().getNeighbours()) {
+
                 FieldWrapper neighbour = scoreMap.getTile(f.getIndex());
+                if (neighbour.getField().isObstacle()) {
+                    continue;
+                }
+
                 Double currentPenalty = penalties.get(neighbour.getIndex());
-                Double newPenalty = penalties.get(cursor.getIndex()) + scoreMap.getPenalty(neighbour);
+                Double newPenalty = penalties.get(cursor.getIndex()) + neighbour.getLastKnown().getPenalty();
+
                 if (currentPenalty == null || newPenalty < currentPenalty) {
                     penalties.put(neighbour.getIndex(), newPenalty);
+                }
+
+                if (currentPenalty == null) {
                     que.addLast(neighbour.getIndex());
                 }
+
             }
         }
         return penalties;
+    }
+
+    public FieldType getLastKnown() {
+        return lastKnown;
     }
 
     public FieldWrapper[] getNeighbours() {

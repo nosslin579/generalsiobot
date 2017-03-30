@@ -3,9 +3,7 @@ package se.nosslin579.aardvark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
-import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 import pl.joegreen.sergeants.framework.model.GameState;
-import pl.joegreen.sergeants.framework.model.VisibleField;
 import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
 import se.nosslin579.aardvark.locator.FoundItLocator;
@@ -15,7 +13,8 @@ import se.nosslin579.aardvark.locator.VisitedFieldsLocator;
 import se.nosslin579.aardvark.scorer.LocatorScorer;
 import se.nosslin579.aardvark.scorer.Scorer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -113,13 +112,23 @@ public class ScoreMap {
 
     public void update(GameState gameState) {
         for (Field updatedField : gameState.getFields()) {
-            FieldWrapper fw = fieldWrappers[updatedField.getIndex()];
-            if (!fw.isViewed() && updatedField.isVisible()) {
+            FieldWrapper oldField = fieldWrappers[updatedField.getIndex()];
+            if (!oldField.isViewed() && updatedField.isVisible()) {
                 fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(updatedField.asVisibleField(), this));
             }
-            fw.setField(updatedField);
+            oldField.setField(updatedField);
         }
         turn = gameState.getTurn();
+
+//        StringBuilder sb = new StringBuilder();
+//        for (FieldWrapper field : fieldWrappers) {
+//            if (field.getField().getPosition().getCol()==0) {
+//                sb.append(System.lineSeparator());
+//            }
+//            sb.append(field.getLastKnown().getSymbol()).append(" ");
+//        }
+//        log.info(sb.toString());
+
     }
 
     public Move getMove() {
@@ -128,10 +137,7 @@ public class ScoreMap {
         if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
             cursor = myGeneral;
         }
-        FieldWrapper moveTo = Arrays.stream(cursor.getNeighbours())
-                .reduce(scores::getMin)
-                .get();
-//        log.info("Moving to {} with a score of {}", moveTo.getIndex(), scores.getScore(moveTo.getIndex()));
+        FieldWrapper moveTo = scores.getMin(cursor.getNeighbours());
         Move ret = new Move(cursor, moveTo);
         cursor = moveTo;
         return ret;
@@ -142,26 +148,6 @@ public class ScoreMap {
     }
 
     public Double getPenalty(FieldWrapper fieldWrapper) {
-        if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.FOG_OBSTACLE) {
-            return 1000d;
-        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.MOUNTAIN) {
-            return 1000d;
-        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.FOG) {
-            return 0.9d;
-        } else if (fieldWrapper.getField().getTerrainType() == FieldTerrainType.EMPTY) {
-            return 0.9d;
-        } else if (fieldWrapper.getField().isVisible()) {
-            VisibleField visibleField = fieldWrapper.getField().asVisibleField();
-            if (visibleField.isOwnedByMe()) {
-                Map<Integer, Double> own = new HashMap<>();
-                own.put(1, 1.5d);
-                own.put(2, .9d);
-                own.put(3, .8d);
-                return own.getOrDefault(visibleField.getArmy(), .7d);
-            } else {
-                return 0.9d;
-            }
-        }
-        throw new IllegalArgumentException("No penalty found for " + fieldWrapper.getIndex());
+        return fieldWrapper.getLastKnown().getPenalty();
     }
 }
