@@ -119,16 +119,17 @@ public class ScoreMap {
             oldField.setField(updatedField);
         }
         turn = gameState.getTurn();
+    }
 
-//        StringBuilder sb = new StringBuilder();
-//        for (FieldWrapper field : fieldWrappers) {
-//            if (field.getField().getPosition().getCol()==0) {
-//                sb.append(System.lineSeparator());
-//            }
-//            sb.append(field.getLastKnown().getSymbol()).append(" ");
-//        }
-//        log.info(sb.toString());
-
+    private void printMap() {
+        StringBuilder sb = new StringBuilder();
+        for (FieldWrapper field : fieldWrappers) {
+            if (field.getField().getPosition().getCol() == 0) {
+                sb.append(System.lineSeparator());
+            }
+            sb.append(field.getLastKnown().getSymbol()).append(" ");
+        }
+        log.info(sb.toString());
     }
 
     public Move getMove() {

@@ -24,13 +24,13 @@ enum FieldType {
     EMPTY(' ', 1d) {
         @Override
         FieldType getByField(Field field) {
-            if (field.isVisible()) {
+            if (field.isVisible() && field.asVisibleField().hasOwner()) {
                 return field.asVisibleField().isOwnedByMe() ? OWN : ENEMY;
             }
             return EMPTY;
         }
     },
-    ENEMY('Y', .9) {
+    ENEMY('-', .9) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().isOwnedByMe()) {
@@ -39,7 +39,7 @@ enum FieldType {
             return ENEMY;
         }
     },
-    OBSTACLE('O', Double.MAX_VALUE) {
+    OBSTACLE('M', Double.MAX_VALUE) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible()) {
@@ -48,7 +48,7 @@ enum FieldType {
             return OBSTACLE;
         }
     },
-    OWN('W', 1.5) {
+    OWN('+', 1.5) {
         @Override
         FieldType getByField(Field field) {
             if (field.asVisibleField().isOwnedByEnemy()) {
@@ -69,7 +69,7 @@ enum FieldType {
     CITY('C', Double.MAX_VALUE) {
         @Override
         FieldType getByField(Field field) {
-            if (field.isVisible()) {
+            if (field.isVisible() && field.asVisibleField().hasOwner()) {
                 return field.asVisibleField().isOwnedByMe() ? OWN_CITY : ENEMY_CITY;
             }
             return CITY;
@@ -84,7 +84,7 @@ enum FieldType {
             return ENEMY_CITY;
         }
     },
-    FOG('F', 1d) {
+    FOG('?', 1d) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible()) {
@@ -96,8 +96,8 @@ enum FieldType {
             return FOG;
         }
     },
-    MOUNTAIN('-', Double.MAX_VALUE),
-    OWN_CROWN('H', 2d),
+    MOUNTAIN('M', Double.MAX_VALUE),
+    OWN_CROWN('X', 2d),
     ENEMY_CROWN('X', -100d);
 
     private final char symbol;
