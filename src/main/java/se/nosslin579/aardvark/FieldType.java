@@ -3,7 +3,7 @@ package se.nosslin579.aardvark;
 import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 
-enum FieldType {
+public enum FieldType {
     UNKNOWN('U', 0d) {
         @Override
         FieldType getByField(Field field) {

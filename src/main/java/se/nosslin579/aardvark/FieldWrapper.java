@@ -1,9 +1,12 @@
 package se.nosslin579.aardvark;
 
 import pl.joegreen.sergeants.framework.model.Field;
-import pl.joegreen.sergeants.framework.model.FieldTerrainType;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 public class FieldWrapper {
     private Field field;
@@ -41,35 +44,9 @@ public class FieldWrapper {
     }
 
     /**
-     * Key=Index, Value=Distance to field with index or null if unreachable
-     */
-    public Map<Integer, Double> getDistancesDynamic(int distanceModifier) {
-        Map<Integer, Double> distances = new HashMap<>();
-        distances.put(field.getIndex(), 0d);
-        List<FieldTerrainType> obstacles = Arrays.asList(FieldTerrainType.FOG_OBSTACLE, FieldTerrainType.MOUNTAIN);
-        Deque<Field> que = new ArrayDeque<>();
-        que.add(field);
-        while (!que.isEmpty()) {
-            Field t = que.pop();
-            for (Field neighbour : t.getNeighbours()) {
-                boolean isObstacle = obstacles.contains(neighbour.getTerrainType());
-                boolean isFreeCity = neighbour.isVisible() && neighbour.asVisibleField().isCity() && !neighbour.asVisibleField().hasOwner();
-                boolean isAlreadySet = distances.containsKey(neighbour.getIndex());
-                boolean isSource = neighbour == field;
-                if (!isFreeCity && !isObstacle && !isAlreadySet && !isSource) {
-                    Double newDistance = distances.get(t.getIndex()) + distanceModifier;
-                    distances.put(neighbour.getIndex(), newDistance);
-                    que.addLast(neighbour);
-                }
-            }
-        }
-        return distances;
-    }
-
-    /**
      * Key=Index, Value=Penalty score for moving to or null if obstacle
      */
-    public Map<Integer, Double> getMovePenalty(ScoreMap scoreMap) {
+    public Map<Integer, Double> getMovePenalty(ScoreMap scoreMap, Function<FieldWrapper, Double> diff) {
         Map<Integer, Double> penalties = new HashMap<>();
         penalties.put(field.getIndex(), 0d);
         Deque<Integer> que = new ArrayDeque<>();
@@ -84,7 +61,7 @@ public class FieldWrapper {
                 }
 
                 Double currentPenalty = penalties.get(neighbour.getIndex());
-                Double newPenalty = penalties.get(cursor.getIndex()) + neighbour.getLastKnown().getPenalty();
+                Double newPenalty = penalties.get(cursor.getIndex()) + diff.apply(neighbour);
 
                 if (currentPenalty == null || newPenalty < currentPenalty) {
                     penalties.put(neighbour.getIndex(), newPenalty);
