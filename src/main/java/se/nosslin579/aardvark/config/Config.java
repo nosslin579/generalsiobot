@@ -1,4 +1,4 @@
-package se.nosslin579.aardvark;
+package se.nosslin579.aardvark.config;
 
 public class Config {
     private int id;
@@ -11,7 +11,6 @@ public class Config {
     private Double cityPenalty;
     private Double enemyCityPenalty;
     private Double fogPenalty;
-    private Double mountainPenalty;
     private Double ownCrownPenalty;
     private Double enemyCrownPenalty;
 
@@ -93,14 +92,6 @@ public class Config {
 
     public void setFogPenalty(Double fogPenalty) {
         this.fogPenalty = fogPenalty;
-    }
-
-    public Double getMountainPenalty() {
-        return mountainPenalty;
-    }
-
-    public void setMountainPenalty(Double mountainPenalty) {
-        this.mountainPenalty = mountainPenalty;
     }
 
     public Double getOwnCrownPenalty() {

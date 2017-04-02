@@ -1,4 +1,4 @@
-package se.nosslin579.trainer;
+package se.nosslin579.aardvark.config;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations;
-import se.nosslin579.aardvark.Config;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -19,9 +18,9 @@ public class Repo {
     private JdbcConnectionPool pool = JdbcConnectionPool.create("jdbc:h2:./db/aardvark;IFEXISTS=TRUE;AUTO_SERVER=TRUE", "sa", "");
     private JdbcTemplate jdbcTemplate = new JdbcTemplate(pool);
     private final RowMapper<Config> configRowMapper = new BeanPropertyRowMapper<>(Config.class);
+    private static Repo instance = new Repo();
 
-
-    public Repo() {
+    private Repo() {
         String[] columns = Arrays.stream(Config.class.getMethods())
                 .filter(method -> method.getReturnType() == Double.class)
                 .map(Method::getName)
@@ -31,6 +30,10 @@ public class Repo {
                 .withTableName("CONFIG")
                 .usingGeneratedKeyColumns("ID")
                 .usingColumns(columns);
+    }
+
+    public static Repo getInstance() {
+        return instance;
     }
 
     public Config getConfig(int id) {

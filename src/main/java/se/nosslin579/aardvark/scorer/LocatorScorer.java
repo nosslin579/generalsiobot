@@ -2,9 +2,9 @@ package se.nosslin579.aardvark.scorer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.nosslin579.aardvark.Config;
 import se.nosslin579.aardvark.ScoreMap;
 import se.nosslin579.aardvark.Scores;
+import se.nosslin579.aardvark.config.Config;
 import se.nosslin579.aardvark.locator.Locator;
 
 import java.util.List;

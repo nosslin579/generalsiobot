@@ -1,6 +1,6 @@
-package se.nosslin579.trainer;
+package se.nosslin579.aardvark.trainer;
 
-import se.nosslin579.aardvark.Config;
+import se.nosslin579.aardvark.config.Config;
 
 public class MatchHandler {
 

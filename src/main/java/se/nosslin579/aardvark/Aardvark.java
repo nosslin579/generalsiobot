@@ -7,6 +7,7 @@ import pl.joegreen.sergeants.framework.Bot;
 import pl.joegreen.sergeants.framework.model.GameResult;
 import pl.joegreen.sergeants.framework.model.GameStarted;
 import pl.joegreen.sergeants.framework.model.GameState;
+import se.nosslin579.aardvark.config.Config;
 
 import java.util.function.Function;
 

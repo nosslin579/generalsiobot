@@ -2,11 +2,14 @@ package se.nosslin579.aardvark;
 
 import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.FieldTerrainType;
+import se.nosslin579.aardvark.config.Config;
 
 import java.util.function.Function;
 
 public enum FieldType {
-    UNKNOWN('U', 0d, config -> Double.MAX_VALUE) {
+    UNKNOWN('U', 0d, config -> {
+        throw new IllegalStateException("Penalty for unknown not allowed");
+    }) {
         @Override
         FieldType getByField(Field field) {
             if (!field.isVisible()) {
@@ -41,7 +44,7 @@ public enum FieldType {
             return ENEMY;
         }
     },
-    OBSTACLE('M', Double.MAX_VALUE, config -> Double.MAX_VALUE) {
+    OBSTACLE('M', 100d, Config::getObstaclePenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible()) {
@@ -68,7 +71,7 @@ public enum FieldType {
             return OWN_CITY;
         }
     },
-    CITY('C', Double.MAX_VALUE, config -> Double.MAX_VALUE) {
+    CITY('C', 50d, Config::getCityPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().hasOwner()) {
@@ -77,7 +80,7 @@ public enum FieldType {
             return CITY;
         }
     },
-    ENEMY_CITY('C', 5d, Config::getCityPenalty) {
+    ENEMY_CITY('C', 5d, Config::getEnemyCityPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.asVisibleField().isOwnedByMe()) {
@@ -98,7 +101,7 @@ public enum FieldType {
             return FOG;
         }
     },
-    MOUNTAIN('M', Double.MAX_VALUE, config -> Double.MAX_VALUE),
+    MOUNTAIN('M', 666d, config -> 666d),
     OWN_CROWN('X', 2d, Config::getOwnCrownPenalty),
     ENEMY_CROWN('X', -100d, Config::getEnemyCrownPenalty);
 

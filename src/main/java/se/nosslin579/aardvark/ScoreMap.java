@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.GameState;
+import se.nosslin579.aardvark.config.Config;
 import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
 import se.nosslin579.aardvark.locator.FoundItLocator;
