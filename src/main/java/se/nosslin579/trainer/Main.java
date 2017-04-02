@@ -9,14 +9,18 @@ import pl.joegreen.sergeants.simulator.SaveHistorySimulatorListener;
 import pl.joegreen.sergeants.simulator.Simulator;
 import pl.joegreen.sergeants.simulator.SimulatorFactory;
 import se.nosslin579.aardvark.Aardvark;
+import se.nosslin579.aardvark.Config;
 
 import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) {
         GameMap playerMap = SimulatorFactory.createMapFromReplayFile("test.json");
-        Simulator of = SimulatorFactory.of(playerMap, DNBot::new, Aardvark::new);
-        of.setMaxTurns(200);
+        Repo repo = new Repo();
+        Config c1 = repo.getConfig(1);
+        Config c2 = repo.getConfig(1);
+        Simulator of = SimulatorFactory.of(playerMap, Aardvark.provider(c1), Aardvark.provider(c2));
+        of.setMaxTurns(400);
         of.getListeners().add(new SaveHistorySimulatorListener());
         Optional<Integer> start = of.start();
         System.out.println(start);

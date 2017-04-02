@@ -8,20 +8,27 @@ import pl.joegreen.sergeants.framework.model.GameResult;
 import pl.joegreen.sergeants.framework.model.GameStarted;
 import pl.joegreen.sergeants.framework.model.GameState;
 
+import java.util.function.Function;
+
 public class Aardvark implements Bot {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     final Actions actions;
+    private final Config config;
     ScoreMap scoreMap;
 
-    public Aardvark(Actions actions) {
+    public Aardvark(Actions actions, Config config) {
         this.actions = actions;
+        this.config = config;
     }
 
+    public static Function<Actions, Bot> provider(Config config) {
+        return actions -> new Aardvark(actions, config);
+    }
 
     @Override
     public void onGameStateUpdate(GameState newGameState) {
-        if (newGameState.getTurn() == 0) {
-            scoreMap = ScoreMap.of(newGameState);
+        if (scoreMap == null) {
+            scoreMap = ScoreMap.of(newGameState, config);
             return;
         }
 

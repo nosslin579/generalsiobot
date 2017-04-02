@@ -20,6 +20,7 @@ public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final List<Scorer> scorers = new ArrayList<>();
     private final List<Locator> locator = new ArrayList<>();
+    private final Config config;
     private final FieldWrapper[] fieldWrappers;
     private final FieldWrapper myGeneral;
     private FieldWrapper cursor;
@@ -28,7 +29,8 @@ public class ScoreMap {
     private List<FieldListener> fieldListeners = new ArrayList<>();
     private int turn = 0;
 
-    public ScoreMap(FieldWrapper[] fieldWrappers, FieldWrapper myGeneral, int width, int height) {
+    public ScoreMap(Config config, FieldWrapper[] fieldWrappers, FieldWrapper myGeneral, int width, int height) {
+        this.config = config;
         this.fieldWrappers = fieldWrappers;
         this.myGeneral = myGeneral;
         this.cursor = myGeneral;
@@ -36,7 +38,7 @@ public class ScoreMap {
         this.height = height;
     }
 
-    public static ScoreMap of(GameState gameState) {
+    public static ScoreMap of(GameState gameState, Config config) {
         FieldWrapper[] fieldWrappers = new FieldWrapper[gameState.getFields().size()];
 
         //populate fields and own general
@@ -55,11 +57,11 @@ public class ScoreMap {
         }
 
         //add beans
-        ScoreMap scoreMap = new ScoreMap(fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows());
+        ScoreMap scoreMap = new ScoreMap(config, fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows());
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
         scoreMap.addBean(new FoundItLocator());
-        scoreMap.addBean(new LocatorScorer(scoreMap.locator));
+        scoreMap.addBean(new LocatorScorer(scoreMap.locator, config));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
 
         return scoreMap;
@@ -148,7 +150,4 @@ public class ScoreMap {
         return turn;
     }
 
-    public Double getPenalty(FieldWrapper fieldWrapper) {
-        return fieldWrapper.getLastKnown().getPenalty();
-    }
 }

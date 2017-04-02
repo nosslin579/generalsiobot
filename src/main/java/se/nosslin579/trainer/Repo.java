@@ -10,19 +10,27 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations;
 import se.nosslin579.aardvark.Config;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
 public class Repo {
 
     private final SimpleJdbcInsertOperations insertConfig;
-    private JdbcConnectionPool pool = JdbcConnectionPool.create("jdbc:h2:./db/test;IFEXISTS=TRUE;AUTO_SERVER=TRUE", "sa", "");
+    private JdbcConnectionPool pool = JdbcConnectionPool.create("jdbc:h2:./db/aardvark;IFEXISTS=TRUE;AUTO_SERVER=TRUE", "sa", "");
     private JdbcTemplate jdbcTemplate = new JdbcTemplate(pool);
     private final RowMapper<Config> configRowMapper = new BeanPropertyRowMapper<>(Config.class);
 
 
     public Repo() {
+        String[] columns = Arrays.stream(Config.class.getMethods())
+                .filter(method -> method.getReturnType() == Double.class)
+                .map(Method::getName)
+                .map(name -> name.substring(3))
+                .toArray(String[]::new);
         this.insertConfig = new SimpleJdbcInsert(pool)
                 .withTableName("CONFIG")
                 .usingGeneratedKeyColumns("ID")
-                .usingColumns("RATING");
+                .usingColumns(columns);
     }
 
     public Config getConfig(int id) {
@@ -48,7 +56,7 @@ public class Repo {
 CREATE TABLE CONFIG
 (
     ID INTEGER AUTO_INCREMENT PRIMARY KEY,
-    TEST INTEGER
+    RATING INTEGER
 )
 
 CREATE TABLE MATCH
