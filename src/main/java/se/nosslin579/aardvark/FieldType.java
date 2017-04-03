@@ -61,6 +61,14 @@ public enum FieldType {
             }
             return OWN;
         }
+
+        @Override
+        public Double getPenalty(Config config, int army) {
+            if (army == 1) {
+                return config.getOwnPenalty();
+            }
+            return config.getOwnPenalty() + army * -0.1d;
+        }
     },
     OWN_CITY('C', 0.4, Config::getOwnCityPenalty) {
         @Override
@@ -130,5 +138,9 @@ public enum FieldType {
     public Double getPenalty(Config config) {
         Double penalty = configPenalty.apply(config);
         return penalty == null ? this.penalty : penalty;
+    }
+
+    public Double getPenalty(Config config, int army) {
+        return getPenalty(config);
     }
 }

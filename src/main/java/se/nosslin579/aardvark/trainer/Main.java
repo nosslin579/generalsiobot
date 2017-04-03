@@ -10,6 +10,7 @@ import pl.joegreen.sergeants.simulator.Simulator;
 import pl.joegreen.sergeants.simulator.SimulatorFactory;
 import se.nosslin579.aardvark.Aardvark;
 import se.nosslin579.aardvark.config.Config;
+import se.nosslin579.aardvark.config.ConfigCreator;
 import se.nosslin579.aardvark.config.Repo;
 
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class Main {
         GameMap playerMap = SimulatorFactory.createMapFromReplayFile("test.json");
         Repo repo = Repo.getInstance();
         Config c2 = repo.getConfig(1);
-        Config c1 = repo.getConfig(2);
+        Config c1 = new ConfigCreator().randomizeConfig(c2);
         Simulator of = SimulatorFactory.of(playerMap, Aardvark.provider(c1), Aardvark.provider(c2));
         of.setMaxTurns(400);
         of.getListeners().add(new SaveHistorySimulatorListener());
