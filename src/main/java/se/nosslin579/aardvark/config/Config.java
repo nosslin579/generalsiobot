@@ -3,16 +3,16 @@ package se.nosslin579.aardvark.config;
 public class Config {
     private int id;
     private Double rating = 1000d;
-    private Double emptyPenalty;
-    private Double enemyPenalty;
-    private Double obstaclePenalty;
-    private Double ownPenalty;
-    private Double ownCityPenalty;
-    private Double cityPenalty;
-    private Double enemyCityPenalty;
-    private Double fogPenalty;
-    private Double ownCrownPenalty;
-    private Double enemyCrownPenalty;
+    private Double emptyPenalty = 1d;
+    private Double enemyPenalty= 0.9d;
+    private Double obstaclePenalty = 100d;
+    private Double ownPenalty=1.5d;
+    private Double ownCityPenalty=0.4d;
+    private Double cityPenalty=50d;
+    private Double enemyCityPenalty=5d;
+    private Double fogPenalty=1d;
+    private Double ownCrownPenalty=2d;
+    private Double enemyCrownPenalty=-10d;
 
     public void setId(int id) {
         this.id = id;

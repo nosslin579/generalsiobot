@@ -7,7 +7,7 @@ import se.nosslin579.aardvark.config.Config;
 import java.util.function.Function;
 
 public enum FieldType {
-    UNKNOWN('U', 0d, config -> {
+    UNKNOWN('U', config -> {
         throw new IllegalStateException("Penalty for unknown not allowed");
     }) {
         @Override
@@ -26,7 +26,7 @@ public enum FieldType {
             throw new IllegalStateException("Unknown field " + field);
         }
     },
-    EMPTY(' ', 1d, Config::getEmptyPenalty) {
+    EMPTY(' ', Config::getEmptyPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().hasOwner()) {
@@ -35,7 +35,7 @@ public enum FieldType {
             return EMPTY;
         }
     },
-    ENEMY('-', .9, Config::getEnemyPenalty) {
+    ENEMY('-', Config::getEnemyPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().isOwnedByMe()) {
@@ -44,7 +44,7 @@ public enum FieldType {
             return ENEMY;
         }
     },
-    OBSTACLE('M', 100d, Config::getObstaclePenalty) {
+    OBSTACLE('M', Config::getObstaclePenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible()) {
@@ -53,7 +53,7 @@ public enum FieldType {
             return OBSTACLE;
         }
     },
-    OWN('+', 1.5, Config::getOwnPenalty) {
+    OWN('+', Config::getOwnPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (!field.isVisible() || field.asVisibleField().isOwnedByEnemy()) {
@@ -70,7 +70,7 @@ public enum FieldType {
             return config.getOwnPenalty() + army * -0.1d;
         }
     },
-    OWN_CITY('C', 0.4, Config::getOwnCityPenalty) {
+    OWN_CITY('C', Config::getOwnCityPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.asVisibleField().isOwnedByEnemy()) {
@@ -79,7 +79,7 @@ public enum FieldType {
             return OWN_CITY;
         }
     },
-    CITY('C', 50d, Config::getCityPenalty) {
+    CITY('C', Config::getCityPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().hasOwner()) {
@@ -88,7 +88,7 @@ public enum FieldType {
             return CITY;
         }
     },
-    ENEMY_CITY('C', 5d, Config::getEnemyCityPenalty) {
+    ENEMY_CITY('C', Config::getEnemyCityPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.asVisibleField().isOwnedByMe()) {
@@ -97,7 +97,7 @@ public enum FieldType {
             return ENEMY_CITY;
         }
     },
-    FOG('?', 1d, Config::getFogPenalty) {
+    FOG('?', Config::getFogPenalty) {
         @Override
         FieldType getByField(Field field) {
             if (field.isVisible()) {
@@ -109,22 +109,16 @@ public enum FieldType {
             return FOG;
         }
     },
-    MOUNTAIN('M', 666d, config -> 666d),
-    OWN_CROWN('X', 2d, Config::getOwnCrownPenalty),
-    ENEMY_CROWN('X', -100d, Config::getEnemyCrownPenalty);
+    MOUNTAIN('M', config -> 666d),
+    OWN_CROWN('X', Config::getOwnCrownPenalty),
+    ENEMY_CROWN('X', Config::getEnemyCrownPenalty);
 
     private final char symbol;
-    private final Double penalty;
     private final Function<Config, Double> configPenalty;
 
-    FieldType(char symbol, Double penalty, Function<Config, Double> configPenalty) {
+    FieldType(char symbol, Function<Config, Double> configPenalty) {
         this.symbol = symbol;
-        this.penalty = penalty;
         this.configPenalty = configPenalty;
-    }
-
-    public Double getPenalty() {
-        return penalty;
     }
 
     public char getSymbol() {
@@ -136,8 +130,7 @@ public enum FieldType {
     }
 
     public Double getPenalty(Config config) {
-        Double penalty = configPenalty.apply(config);
-        return penalty == null ? this.penalty : penalty;
+        return configPenalty.apply(config);
     }
 
     public Double getPenalty(Config config, int army) {

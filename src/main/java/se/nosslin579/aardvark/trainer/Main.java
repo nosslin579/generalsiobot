@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
         GameMap playerMap = SimulatorFactory.createMapFromReplayFile("test.json");
         Repo repo = Repo.getInstance();
-        Config c2 = repo.getConfig(1);
+        Config c2 = new Config();
         Config c1 = new ConfigCreator().randomizeConfig(c2);
         Simulator of = SimulatorFactory.of(playerMap, Aardvark.provider(c1), Aardvark.provider(c2));
         of.setMaxTurns(400);
