@@ -1,5 +1,7 @@
 package se.nosslin579.aardvark;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
 
 import java.util.ArrayDeque;
@@ -9,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class FieldWrapper {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private Field field;
     private FieldWrapper[] neighbours;
     private boolean viewed = false;

@@ -27,16 +27,19 @@ public class ScoreMap {
     private FieldWrapper cursor;
     private final int width;
     private final int height;
+    private final int myPlayerIndex;
     private List<FieldListener> fieldListeners = new ArrayList<>();
     private int turn = 0;
+    private Move previous = new Move(0, 0);
 
-    public ScoreMap(Config config, FieldWrapper[] fieldWrappers, FieldWrapper myGeneral, int width, int height) {
+    public ScoreMap(Config config, FieldWrapper[] fieldWrappers, FieldWrapper myGeneral, int width, int height, int myPlayerIndex) {
         this.config = config;
         this.fieldWrappers = fieldWrappers;
         this.myGeneral = myGeneral;
         this.cursor = myGeneral;
         this.width = width;
         this.height = height;
+        this.myPlayerIndex = myPlayerIndex;
     }
 
     public static ScoreMap of(GameState gameState, Config config) {
@@ -58,7 +61,7 @@ public class ScoreMap {
         }
 
         //add beans
-        ScoreMap scoreMap = new ScoreMap(config, fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows());
+        ScoreMap scoreMap = new ScoreMap(config, fieldWrappers, ownGeneral, gameState.getColumns(), gameState.getRows(), gameState.getMyPlayerIndex());
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
         scoreMap.addBean(new FoundItLocator());
@@ -144,6 +147,11 @@ public class ScoreMap {
         FieldWrapper moveTo = scores.getMin(cursor.getNeighbours());
         Move ret = new Move(cursor, moveTo);
         cursor = moveTo;
+
+        if (previous.getTo() == ret.getFrom() && previous.getFrom() == ret.getTo()) {
+            log.warn("Moving back to previous. Turn={} {} {}", turn, ret, myPlayerIndex);
+        }
+        previous = ret;
         return ret;
     }
 

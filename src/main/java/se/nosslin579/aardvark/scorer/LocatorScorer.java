@@ -2,6 +2,7 @@ package se.nosslin579.aardvark.scorer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.nosslin579.aardvark.FieldWrapper;
 import se.nosslin579.aardvark.ScoreMap;
 import se.nosslin579.aardvark.Scores;
 import se.nosslin579.aardvark.config.Config;
@@ -25,16 +26,7 @@ public class LocatorScorer implements Scorer {
         Scores crownScores = getCrownScores(scoreMap);
         int mostLikelyIndex = crownScores.getMax();
         log.debug("Guessing general is at index: {} with a score of {}", mostLikelyIndex, crownScores.getScore(mostLikelyIndex));
-        Map<Integer, Double> distances = scoreMap.getTile(mostLikelyIndex)
-                .getMovePenalty(scoreMap, neighbour -> {
-                    if (neighbour.getField().isVisible()) {
-                        int army1 = neighbour.getField().asVisibleField().getArmy();
-                        return neighbour.getLastKnown().getPenalty(config, army1);
-                    } else {
-                        return neighbour.getLastKnown().getPenalty(config);
-
-                    }
-                });
+        Map<Integer, Double> distances = scoreMap.getTile(mostLikelyIndex).getMovePenalty(scoreMap, this::getPenaltyFor);
         return new Scores(distances, 10000d);//config
     }
 
@@ -45,4 +37,16 @@ public class LocatorScorer implements Scorer {
                 .forEach(scores::add);
         return scores;
     }
+
+    private Double getPenaltyFor(FieldWrapper fieldWrapper) {
+        if (fieldWrapper.getField().isVisible()) {
+            int army = fieldWrapper.getField().asVisibleField().getArmy();
+            Double penalty = fieldWrapper.getLastKnown().getPenalty(config, army);
+            return penalty < 0d ? 0d : penalty;
+        } else {
+            Double penalty = fieldWrapper.getLastKnown().getPenalty(config);
+            return penalty < 0d ? 0d : penalty;
+        }
+    }
+
 }
