@@ -13,6 +13,7 @@ public class Config {
     private Double fogPenalty=1d;
     private Double ownCrownPenalty=2d;
     private Double enemyCrownPenalty=-10d;
+    private Double mandatoryMovePenalty = 0.1d;
 
     public void setId(int id) {
         this.id = id;
@@ -108,5 +109,13 @@ public class Config {
 
     public void setEnemyCrownPenalty(Double enemyCrownPenalty) {
         this.enemyCrownPenalty = enemyCrownPenalty;
+    }
+
+    public Double getMandatoryMovePenalty() {
+        return mandatoryMovePenalty;
+    }
+
+    public void setMandatoryMovePenalty(Double mandatoryMovePenalty) {
+        this.mandatoryMovePenalty = mandatoryMovePenalty;
     }
 }

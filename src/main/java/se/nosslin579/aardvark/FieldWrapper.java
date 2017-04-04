@@ -64,7 +64,7 @@ public class FieldWrapper {
                 }
 
                 Double currentPenalty = penalties.get(neighbour.getIndex());
-                Double newPenalty = penalties.get(cursor.getIndex()) + diff.apply(neighbour);
+                Double newPenalty = penalties.get(cursor.getIndex()) + diff.apply(neighbour) + scoreMap.getConfig().getMandatoryMovePenalty();
 
                 if (currentPenalty == null || newPenalty < currentPenalty) {
                     penalties.put(neighbour.getIndex(), newPenalty);

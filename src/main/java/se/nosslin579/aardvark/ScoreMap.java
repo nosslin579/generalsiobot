@@ -159,4 +159,7 @@ public class ScoreMap {
         return turn;
     }
 
+    public Config getConfig() {
+        return config;
+    }
 }
