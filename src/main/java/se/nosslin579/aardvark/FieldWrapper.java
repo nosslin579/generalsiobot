@@ -38,10 +38,16 @@ public class FieldWrapper {
         return field;
     }
 
+    /**
+     * Zero indexed
+     */
     public int getX() {
         return field.getPosition().getCol();
     }
 
+    /**
+     * Zero indexed
+     */
     public int getY() {
         return field.getPosition().getRow();
     }

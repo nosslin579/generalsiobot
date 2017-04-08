@@ -90,20 +90,21 @@ public class Scores {
     }
 
 
-    public void print(ScoreMap scoreMap) {
+    public String getPrettyPrint(ScoreMap scoreMap) {
         StringBuilder sb = new StringBuilder();
         for (FieldWrapper fieldWrapper : scoreMap.getFieldWrappers()) {
             if (fieldWrapper.getX() == 0) {
                 sb.append(System.lineSeparator());
             }
-            Integer scoreAsInt = scores.getOrDefault(fieldWrapper.getIndex(), -100d).intValue();
-            String scoreAsString = scoreAsInt == -100 ? "--" : scoreAsInt.toString();
+            Double scoreAsInt = scores.get(fieldWrapper.getIndex());
+            String scoreAsString = String.valueOf(scoreAsInt == null ? " x" : scoreAsInt.intValue());
             if (scoreAsString.length() == 1) {
                 sb.append(" ");
+            }else if (scoreAsString.length() > 2) {
+                scoreAsString = ">9";
             }
             sb.append(scoreAsString).append(" ");
         }
-        log.info(sb.toString());
-
+        return sb.toString();
     }
 }

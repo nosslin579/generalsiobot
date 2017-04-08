@@ -1,5 +1,7 @@
 package se.nosslin579.aardvark.config;
 
+import org.springframework.util.Assert;
+
 public class Config {
     private int id;
     private Double rating = 1000d;
@@ -14,6 +16,7 @@ public class Config {
     private Double ownCrownPenalty=2d;
     private Double enemyCrownPenalty=-10d;
     private Double mandatoryMovePenalty = 0.1d;
+    private int excludeEdgeDistance = 1;
 
     public void setId(int id) {
         this.id = id;
@@ -117,5 +120,15 @@ public class Config {
 
     public void setMandatoryMovePenalty(Double mandatoryMovePenalty) {
         this.mandatoryMovePenalty = mandatoryMovePenalty;
+    }
+
+    public int getExcludeEdgeDistance() {
+        return excludeEdgeDistance;
+    }
+
+    public void setExcludeEdgeDistance(int excludeEdgeDistance) {
+        Assert.isTrue(excludeEdgeDistance>=0,"Must be greater then zero");
+        Assert.isTrue(excludeEdgeDistance<15,"Too much");
+        this.excludeEdgeDistance = excludeEdgeDistance;
     }
 }

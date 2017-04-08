@@ -7,10 +7,7 @@ import pl.joegreen.sergeants.framework.model.GameState;
 import se.nosslin579.aardvark.config.Config;
 import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
-import se.nosslin579.aardvark.locator.FoundItLocator;
-import se.nosslin579.aardvark.locator.Locator;
-import se.nosslin579.aardvark.locator.MirrorOwnGeneralLocator;
-import se.nosslin579.aardvark.locator.VisitedFieldsLocator;
+import se.nosslin579.aardvark.locator.*;
 import se.nosslin579.aardvark.scorer.LocatorScorer;
 import se.nosslin579.aardvark.scorer.Scorer;
 
@@ -65,6 +62,8 @@ public class ScoreMap {
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
         scoreMap.addBean(new FoundItLocator());
+        scoreMap.addBean(new ExcludeEdgeLocator(scoreMap));
+        scoreMap.addBean(new UnreachableLocator(scoreMap));
         scoreMap.addBean(new LocatorScorer(scoreMap.locator, config));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
 
