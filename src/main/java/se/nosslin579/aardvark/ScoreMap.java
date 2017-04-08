@@ -13,6 +13,7 @@ import se.nosslin579.aardvark.scorer.Scorer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -62,6 +63,7 @@ public class ScoreMap {
         scoreMap.addBean(new SetViewedFieldListener());
         scoreMap.addBean(new VisitedFieldsLocator());
         scoreMap.addBean(new FoundItLocator());
+        scoreMap.addBean(new CutOffLocator(scoreMap));
         scoreMap.addBean(new ExcludeEdgeLocator(scoreMap));
         scoreMap.addBean(new UnreachableLocator(scoreMap));
         scoreMap.addBean(new LocatorScorer(scoreMap.locator, config));
@@ -116,14 +118,19 @@ public class ScoreMap {
     }
 
     public void update(GameState gameState) {
-        for (Field updatedField : gameState.getFields()) {
-            FieldWrapper oldField = fieldWrappers[updatedField.getIndex()];
-            if (!oldField.isViewed() && updatedField.isVisible()) {
-                fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(updatedField.asVisibleField(), this));
+        Optional<FieldWrapper> captured = Optional.empty();
+        for (Field newField : gameState.getFields()) {
+            FieldWrapper fw = fieldWrappers[newField.getIndex()];
+            if (!fw.isViewed() && newField.isVisible()) {
+                fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(newField.asVisibleField(), this));
             }
-            oldField.setField(updatedField);
+            if (fw.getField().isVisible() && !fw.getField().asVisibleField().isOwnedByEnemy() && newField.isVisible() && newField.asVisibleField().isOwnedByEnemy()) {
+                captured = Optional.of(fw);
+            }
+            fw.updateField(newField).ifPresent(old -> fieldListeners.forEach(fieldListener -> fieldListener.onFieldChange(fw, old)));
         }
         turn = gameState.getTurn();
+        captured.ifPresent(cap -> fieldListeners.forEach(fieldListener -> fieldListener.onCaptured(this, cap)));
     }
 
     private void printMap() {

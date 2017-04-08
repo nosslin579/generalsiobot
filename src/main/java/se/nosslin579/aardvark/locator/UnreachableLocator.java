@@ -18,7 +18,7 @@ public class UnreachableLocator implements Locator {
         Map<Integer, Double> movePenalty = scoreMap.getMyGeneral().getMovePenalty(scoreMap, fieldWrapper1 -> 1d);
         for (FieldWrapper fieldWrapper : scoreMap.getFieldWrappers()) {
             if (!movePenalty.containsKey(fieldWrapper.getIndex())) {
-                scores.add(fieldWrapper.getIndex(), -50000000d);
+                scores.add(fieldWrapper.getIndex(), GARANTEED_NOT_HERE);
             }
         }
 

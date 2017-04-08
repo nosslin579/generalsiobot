@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class FieldWrapper {
@@ -25,9 +22,12 @@ public class FieldWrapper {
         return field.isVisible() && field.asVisibleField().isOwnedByMe();
     }
 
-    public void setField(Field field) {
-        lastKnown = lastKnown.getByField(field);
+    public Optional<Field> updateField(Field field) {
+        FieldType updated = lastKnown.getByField(field);
+        Optional<Field> ret = updated == lastKnown ? Optional.empty() : Optional.of(this.field);
+        lastKnown = updated;
         this.field = field;
+        return ret;
     }
 
     public int getIndex() {
