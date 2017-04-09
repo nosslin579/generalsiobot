@@ -17,7 +17,7 @@ public class Config {
     private Double enemyCrownPenalty=-10d;
     private Double mandatoryMovePenalty = 0.1d;
     private int excludeEdgeDistance = 1;
-    private Double moveBackPenalty = -0d;
+    private Double moveBackPenalty = 1d;
 
     public void setId(int id) {
         this.id = id;
