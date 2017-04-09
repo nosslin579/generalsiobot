@@ -9,6 +9,7 @@ import se.nosslin579.aardvark.fieldlisteners.FieldListener;
 import se.nosslin579.aardvark.fieldlisteners.SetViewedFieldListener;
 import se.nosslin579.aardvark.locator.*;
 import se.nosslin579.aardvark.scorer.LocatorScorer;
+import se.nosslin579.aardvark.scorer.MoveBackScorer;
 import se.nosslin579.aardvark.scorer.Scorer;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class ScoreMap {
         scoreMap.addBean(new UnreachableLocator(scoreMap));
         scoreMap.addBean(new LocatorScorer(scoreMap.locator, config));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
-//        scoreMap.addBean(new MoveBackScorer(config));
+        scoreMap.addBean(new MoveBackScorer(config));
 
         return scoreMap;
     }
