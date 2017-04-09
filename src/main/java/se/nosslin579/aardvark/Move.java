@@ -2,7 +2,7 @@ package se.nosslin579.aardvark;
 
 import pl.joegreen.sergeants.framework.model.Field;
 
-class Move {
+public class Move {
     private final int from;
     private final int to;
 

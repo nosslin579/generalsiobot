@@ -17,6 +17,7 @@ public class Config {
     private Double enemyCrownPenalty=-10d;
     private Double mandatoryMovePenalty = 0.1d;
     private int excludeEdgeDistance = 1;
+    private Double moveBackPenalty = -0d;
 
     public void setId(int id) {
         this.id = id;
@@ -130,5 +131,13 @@ public class Config {
         Assert.isTrue(excludeEdgeDistance>=0,"Must be greater then zero");
         Assert.isTrue(excludeEdgeDistance<15,"Too much");
         this.excludeEdgeDistance = excludeEdgeDistance;
+    }
+
+    public Double getMoveBackPenalty() {
+        return moveBackPenalty;
+    }
+
+    public void setMoveBackPenalty(Double moveBackPenalty) {
+        this.moveBackPenalty = moveBackPenalty;
     }
 }

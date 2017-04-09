@@ -19,6 +19,7 @@ public class ScoreMap {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final List<Scorer> scorers = new ArrayList<>();
     private final List<Locator> locator = new ArrayList<>();
+    private final List<MoveListener> moveListeners = new ArrayList<>();
     private final Config config;
     private final FieldWrapper[] fieldWrappers;
     private final FieldWrapper myGeneral;
@@ -68,6 +69,7 @@ public class ScoreMap {
         scoreMap.addBean(new UnreachableLocator(scoreMap));
         scoreMap.addBean(new LocatorScorer(scoreMap.locator, config));
         scoreMap.addBean(new MirrorOwnGeneralLocator(scoreMap));
+//        scoreMap.addBean(new MoveBackScorer(config));
 
         return scoreMap;
     }
@@ -81,6 +83,9 @@ public class ScoreMap {
         }
         if (bean instanceof Scorer) {
             scorers.add((Scorer) bean);
+        }
+        if (bean instanceof MoveListener) {
+            moveListeners.add((MoveListener) bean);
         }
     }
 
@@ -145,18 +150,19 @@ public class ScoreMap {
     }
 
     public Move getMove() {
-        Scores scores = Scores.of(scorers, this);
+        Scores penalties = Scores.of(scorers, this);
 
         if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
             cursor = myGeneral;
         }
-        FieldWrapper moveTo = scores.getMin(cursor.getNeighbours());
+        FieldWrapper moveTo = penalties.getMin(cursor.getNeighbours());
         Move ret = new Move(cursor, moveTo);
         cursor = moveTo;
 
         if (previous.getTo() == ret.getFrom() && previous.getFrom() == ret.getTo()) {
             log.warn("Moving back to previous. Turn={} {} {}", turn, ret, myPlayerIndex);
         }
+        moveListeners.forEach(moveListener -> moveListener.beforeMove(ret));
         previous = ret;
         return ret;
     }

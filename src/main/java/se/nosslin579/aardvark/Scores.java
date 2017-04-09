@@ -11,16 +11,16 @@ import java.util.Map;
 
 public class Scores {
     private final static Logger log = LoggerFactory.getLogger(Scores.class);
-    private final Map<Integer, Double> scores;
+    private final Map<Integer, Double> map;
     private final Double defaultValue;
 
-    public Scores(Map<Integer, Double> scores, Double defaultValue) {
-        this.scores = scores;
+    public Scores(Map<Integer, Double> map, Double defaultValue) {
+        this.map = map;
         this.defaultValue = defaultValue;
     }
 
-    public Scores(Map<Integer, Double> scores) {
-        this(scores, 0d);
+    public Scores(Map<Integer, Double> map) {
+        this(map, 0d);
     }
 
     public Scores() {
@@ -29,15 +29,15 @@ public class Scores {
 
 
     public void put(int index, Double score) {
-        scores.put(index, score);
+        map.put(index, score);
     }
 
     public FieldWrapper getMax(FieldWrapper fw1, FieldWrapper fw2) {
-        return scores.get(fw1.getIndex()) > scores.get(fw2.getIndex()) ? fw1 : fw2;
+        return map.get(fw1.getIndex()) > map.get(fw2.getIndex()) ? fw1 : fw2;
     }
 
     public FieldWrapper getMin(FieldWrapper fw1, FieldWrapper fw2) {
-        return scores.get(fw1.getIndex()) < scores.get(fw2.getIndex()) ? fw1 : fw2;
+        return map.get(fw1.getIndex()) < map.get(fw2.getIndex()) ? fw1 : fw2;
     }
 
     public static Scores of(List<Scorer> scorers, ScoreMap scoreMap) {
@@ -56,30 +56,29 @@ public class Scores {
     }
 
     public void add(Scores scores) {
-        for (Integer index : scores.scores.keySet()) {
-            Double score = scores.scores.get(index);
-            add(index, score);
+        for (Map.Entry<Integer, Double> entry : scores.map.entrySet()) {
+            add(entry.getKey(), entry.getValue());
         }
     }
 
     public void add(Integer index, Double score) {
-        Double current = scores.getOrDefault(index, defaultValue);
-        this.scores.put(index, score + current);
+        Double current = map.getOrDefault(index, defaultValue);
+        this.map.put(index, score + current);
     }
 
     public int getMax() {
-        return scores.entrySet().stream()
+        return map.entrySet().stream()
                 .reduce((e1, e2) -> e1.getValue() > e2.getValue() ? e1 : e2)
                 .get()
                 .getKey();
     }
 
     public Double getScore(int index) {
-        return scores.getOrDefault(index, defaultValue);
+        return map.getOrDefault(index, defaultValue);
     }
 
     public boolean contains(FieldWrapper fieldWrapper) {
-        return scores.containsKey(fieldWrapper.getIndex());
+        return map.containsKey(fieldWrapper.getIndex());
     }
 
     public FieldWrapper getMin(FieldWrapper[] fieldWrappers) {
@@ -96,7 +95,7 @@ public class Scores {
             if (fieldWrapper.getX() == 0) {
                 sb.append(System.lineSeparator());
             }
-            Double scoreAsInt = scores.get(fieldWrapper.getIndex());
+            Double scoreAsInt = map.get(fieldWrapper.getIndex());
             String scoreAsString = String.valueOf(scoreAsInt == null ? " x" : scoreAsInt.intValue());
             if (scoreAsString.length() == 1) {
                 sb.append(" ");
