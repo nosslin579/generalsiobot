@@ -8,6 +8,11 @@ import pl.joegreen.sergeants.framework.model.GameResult;
 import pl.joegreen.sergeants.framework.model.GameStarted;
 import pl.joegreen.sergeants.framework.model.GameState;
 import se.nosslin579.bamse.config.Config;
+import se.nosslin579.bamse.fieldlisteners.FieldListener;
+import se.nosslin579.bamse.fieldlisteners.SetViewedFieldListener;
+import se.nosslin579.bamse.locator.*;
+import se.nosslin579.bamse.scorer.LocatorScorer;
+import se.nosslin579.bamse.scorer.Scorer;
 
 import java.util.function.Function;
 
@@ -31,18 +36,43 @@ public class Bamse implements Bot {
     public void onGameStateUpdate(GameState newGameState) {
         if (tileHandler == null) {
             tileHandler = TileHandler.of(newGameState, config);
+
+            addBean(new SetViewedFieldListener());
+            addBean(new VisitedFieldsLocator());
+            addBean(new FoundItLocator());
+            addBean(new CutOffLocator(tileHandler));
+            addBean(new ExcludeEdgeLocator(tileHandler));
+            addBean(new UnreachableLocator(tileHandler));
+            addBean(new LocatorScorer(moveHandler.getLocators(), config));
+            addBean(new MirrorOwnGeneralLocator(tileHandler));
+
             return;
         }
 
         tileHandler.update(newGameState);
+//        moveHandler.update(newGameState, tileHandler);
 
 
 //        Object[] scores = Arrays.stream(scoreMap.getFieldWrappers()).filter(field -> field.getField().isVisible()).toArray();
 
         if (newGameState.getTurn() > 24) {
-            Move m = tileHandler.getMove();
-            actions.move(m.getFrom(), m.getTo());
+            for (Move move : moveHandler.getMoves(tileHandler)) {
+                actions.move(move.getFrom(), move.getTo());
+            }
         }
+    }
+
+    private void addBean(Object bean) {
+        if (bean instanceof FieldListener) {
+            tileHandler.getFieldListeners().add((FieldListener) bean);
+        }
+        if (bean instanceof Locator) {
+            moveHandler.getLocators().add((Locator) bean);
+        }
+        if (bean instanceof Scorer) {
+            moveHandler.getScorers().add((Scorer) bean);
+        }
+
     }
 
     @Override
