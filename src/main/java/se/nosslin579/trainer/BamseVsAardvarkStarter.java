@@ -10,12 +10,11 @@ import se.nosslin579.bamse.config.Config;
 
 import java.util.Optional;
 
-public class MatchStarter {
+public class BamseVsAardvarkStarter {
     public static void main(String[] args) {
         GameMap playerMap = SimulatorFactory.createMapFromReplayFile("test.json");
         Config c2 = new Config();
-        Simulator of = SimulatorFactory.of(playerMap, Aardvark.provider(new se.nosslin579.aardvark.config.Config()), Bamse.provider(c2));
-        of.setMaxTurns(400);
+        Simulator of = SimulatorFactory.of(playerMap, 400, Aardvark.provider(new se.nosslin579.aardvark.config.Config()), Bamse.provider(c2));
         of.getListeners().add(new SaveHistorySimulatorListener());
         Optional<Integer> start = of.start();
         System.out.println(start);
