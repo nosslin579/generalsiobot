@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.Actions;
 import pl.joegreen.sergeants.framework.Bot;
+import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.GameResult;
 import pl.joegreen.sergeants.framework.model.GameStarted;
 import pl.joegreen.sergeants.framework.model.GameState;
@@ -15,6 +16,7 @@ import se.nosslin579.bamse.scorer.LocatorScorer;
 import se.nosslin579.bamse.scorer.Scorer;
 
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Bamse implements Bot {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -46,7 +48,15 @@ public class Bamse implements Bot {
             addBean(new LocatorScorer(moveHandler.getLocators(), config));
             addBean(new MirrorOwnGeneralLocator(tileHandler));
 
-            return;
+            int width = newGameState.getColumns();
+            int height = newGameState.getRows();
+            String obstacles = newGameState.getFields().stream()
+                    .filter(Field::isObstacle)
+                    .map(Field::getIndex)
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+            int myGeneral = tileHandler.getMyGeneral().getIndex();
+            log.info("Map is {} x {}, my general is at index {} and obstacles is at {}", width, height, myGeneral, obstacles);
         }
 
         tileHandler.update(newGameState);
