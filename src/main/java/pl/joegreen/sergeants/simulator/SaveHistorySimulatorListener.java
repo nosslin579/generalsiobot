@@ -9,10 +9,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SaveHistorySimulatorListener implements SimulatorListener {
-    private final Logger LOGGER = LoggerFactory.getLogger(pl.joegreen.sergeants.simulator.SaveHistorySimulatorListener.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(SaveHistorySimulatorListener.class);
 
     private ObjectMapper om = new ObjectMapper();
     private List<String> history = new ArrayList<>();
@@ -21,7 +22,7 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
     @Override
     public void afterHalfTurn(int halfTurnCounter, Tile[] tiles) {
         try {
-            history.add(om.writeValueAsString(tiles));
+            history.add(om.writeValueAsString(Arrays.stream(tiles).map(TileWrapper::new).toArray()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Write json failed: " + halfTurnCounter, e);
         }
@@ -47,7 +48,7 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
 
     private void saveGameAsJson() {
         try {
-            final File file = new File("replay-data.js");
+            final File file = new File("gui/replay-data.js");
             final PrintWriter printWriter = new PrintWriter(file);
             printWriter.println("var generalIoReplay = {};");
             printWriter.println("window.generalIoReplay = generalIoReplay;");
@@ -63,4 +64,34 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
         }
     }
 
+    private class TileWrapper {
+
+        private final int tileIndex;
+        private final int armySize;
+        private final int playerIndex;
+        private final String type;
+
+        public TileWrapper(Tile tile) {
+            this.tileIndex = tile.getTileIndex();
+            this.armySize = tile.getArmySize();
+            this.playerIndex = tile.getOwnerPlayerIndex().orElse(-1);
+            this.type = tile.getClass().getSimpleName().toLowerCase();
+        }
+
+        public int getTileIndex() {
+            return tileIndex;
+        }
+
+        public int getArmySize() {
+            return armySize;
+        }
+
+        public int getPlayerIndex() {
+            return playerIndex;
+        }
+
+        public String getType() {
+            return type;
+        }
+    }
 }

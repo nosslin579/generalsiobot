@@ -36,7 +36,7 @@ public class CutOffLocator implements Locator, FieldListener {
                 if (cutOffFields.isCutoff()) {
                     int size = cutOffFields.getProcessed().size();
                     Optional<Integer> ownerIndex = scoreMap.getMyGeneral().getField().asVisibleField().getOwnerIndex();
-                    log.info("{} Found cut off fields. Size:{} Player:{}", scoreMap.getTurn(), size, ownerIndex);
+                    log.debug("At turn {} Found cut off fields. Size:{} Player:{}", scoreMap.getTurn(), size, ownerIndex);
 
                     for (FieldWrapper cutOffField : cutOffFields.getProcessed()) {
                         scores.add(cutOffField.getIndex(), GARANTEED_NOT_HERE);

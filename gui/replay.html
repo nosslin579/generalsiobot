@@ -6,6 +6,16 @@
 </head>
 <body style='background-color: #363333;'>
 <style>
+
+    .tile-index {
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: black;
+        text-shadow: 0 0 0;
+        opacity: 0.2;
+    }
+
     .owner0 {
         background-color: blue !important;
     }
@@ -17,7 +27,7 @@
     /*todo add owner 2-7 */
 
     .type-mountaintile {
-        background-image: url('//generals.io/mountain.png');
+        background-image: url('mountain.png');
         background-color: #bbb;
     }
 
@@ -28,12 +38,12 @@
     }
 
     .type-citytile {
-        background-image: url('//generals.io/city.png');
+        background-image: url('city.png');
         background-color: gray;
     }
 
     .type-generaltile {
-        background-image: url('//generals.io/crown.png');
+        background-image: url('crown.png');
         background-color: #bbb;
     }
 
@@ -57,7 +67,7 @@
         text-shadow: 0 0 2px black;
         opacity: 1;
         padding: 0;
-        verflow: hidden;
+        overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         font-size: 16px;
@@ -98,6 +108,11 @@
             td.className += ' owner' + tile.playerIndex;
             td.className += ' type-' + tile.type;
             tbl.lastElementChild.appendChild(td);
+
+            var tileIndex = document.createElement('div');
+            td.appendChild(tileIndex);
+            tileIndex.className = 'tile-index';
+            tileIndex.innerHTML = tile.tileIndex;
         });
     }
     drawTable(0);

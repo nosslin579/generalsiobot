@@ -15,14 +15,13 @@ import se.nosslin579.aardvark.config.Repo;
 
 import java.util.Optional;
 
-public class Main {
+public class AardvarkVsAardvarkStarter {
     public static void main(String[] args) {
         GameMap playerMap = SimulatorFactory.createMapFromReplayFile("test.json");
         Repo repo = Repo.getInstance();
         Config c2 = new Config();
         Config c1 = new ConfigCreator().randomizeConfig(c2);
-        Simulator of = SimulatorFactory.of(playerMap, Aardvark.provider(c1), Aardvark.provider(c2));
-        of.setMaxTurns(400);
+        Simulator of = SimulatorFactory.of(playerMap, 400, Aardvark.provider(c1), Aardvark.provider(c2));
         of.getListeners().add(new SaveHistorySimulatorListener());
         Optional<Integer> start = of.start();
         System.out.println(start);
