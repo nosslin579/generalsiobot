@@ -75,6 +75,7 @@
     }
 </style>
 <div id='board'></div>
+<div id='turn'>11</div>
 <script>
     generalIoReplay.turn = 0;
     console.log('history', generalIoReplay);
@@ -93,6 +94,8 @@
             generalIoReplay.turn -= stepDirectionParam;
             return;
         }
+        var turnElement = document.getElementById('turn');
+        turnElement.innerText = generalIoReplay.turn;
 
         board.innerHTML = '';
         var tbl = document.createElement('table');

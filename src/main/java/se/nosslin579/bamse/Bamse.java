@@ -63,8 +63,17 @@ public class Bamse implements Bot {
 
 //        Object[] scores = Arrays.stream(scoreMap.getFieldWrappers()).filter(field -> field.getField().isVisible()).toArray();
 
+
         if (newGameState.getTurn() > 24) {
-            moveHandler.getMove(tileHandler).ifPresent(move -> actions.move(move.getFrom(), move.getTo()));
+            if (newGameState.getTurn() % 50 == 0) {
+                log.info("New round");
+            }
+
+            moveHandler.getMove(tileHandler)
+                    .ifPresent(move -> {
+//                        log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
+                        actions.move(move.getFrom(), move.getTo());
+                    });
         }
     }
 

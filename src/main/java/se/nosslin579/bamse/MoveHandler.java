@@ -29,7 +29,7 @@ public class MoveHandler {
         while (!movePath.isEmpty()) {
             Move move = movePath.pop();
             if (isValid(move, tileHandler)) {
-//                log.info("Moving to {} army size is {} path size is now:{}", move, tileHandler.getTile(move.getFrom()).getField().asVisibleField().getArmy(), movePath.size());
+//                log.info("At {} move:{} army size is {} path size is now:{}", move, tileHandler.getTile(move.getFrom()).getField().asVisibleField().getArmy(), movePath.size());
                 return Optional.of(move);
             }
 
@@ -48,15 +48,15 @@ public class MoveHandler {
         Tile moveFrom = tileHandler.getMyGeneral();
         while (moveFrom != goal && loopSafety++ < 200) {
             Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
-            movePath.add(new Move(moveFrom, moveTo));
+            movePath.add(new Move(moveFrom, moveTo, "Path"));
             moveFrom = moveTo;
         }
         //add expanding
-        int aggregatedMoves = aggregate(tileHandler);
+        int aggregatedMoves = aggregatePath(tileHandler);
         log.info("Created move path with {}/{} steps, final step is {}", aggregatedMoves, movePath.size(), movePath.getLast().getTo());
     }
 
-    private int aggregate(TileHandler tileHandler) {
+    private int aggregatePath(TileHandler tileHandler) {
         int originalSize = movePath.size();
         while (true) {
             int size = movePath.size();
@@ -66,7 +66,7 @@ public class MoveHandler {
                     if (neighbour.getMyArmySize() > 0 && tileInPath.isMine()) {
                         boolean inPath = movePath.stream().anyMatch(m -> m.getFrom() == neighbour.getIndex());
                         if (!inPath) {
-                            movePath.addFirst(new Move(neighbour, tileInPath));
+                            movePath.addFirst(new Move(neighbour, tileInPath, "Aggregating path"));
                         }
                     }
                 }
