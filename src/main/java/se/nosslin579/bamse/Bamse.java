@@ -71,7 +71,7 @@ public class Bamse implements Bot {
 
             moveHandler.getMove(tileHandler)
                     .ifPresent(move -> {
-//                        log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
+                        log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
                         actions.move(move.getFrom(), move.getTo());
                     });
         }

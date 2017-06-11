@@ -7,6 +7,7 @@ import se.nosslin579.bamse.locator.Locator;
 import se.nosslin579.bamse.scorer.Scorer;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MoveHandler {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -22,23 +23,20 @@ public class MoveHandler {
     }
 
     public Optional<Move> getMove(TileHandler tileHandler) {
-        if (movePath.isEmpty()) {
+        boolean anyValid = movePath.stream().anyMatch(m -> isValid(m, tileHandler));
+        if (!anyValid) {
             createMovePath(tileHandler);
         }
 
         while (!movePath.isEmpty()) {
             Move move = movePath.pop();
             if (isValid(move, tileHandler)) {
-//                log.info("At {} move:{} army size is {} path size is now:{}", move, tileHandler.getTile(move.getFrom()).getField().asVisibleField().getArmy(), movePath.size());
                 return Optional.of(move);
             }
+        }
 
-        }
-        if (tileHandler.getMyGeneral().getMyArmySize() == 0) {
-            log.warn("No move found");
-            return Optional.empty();
-        }
-        return getMove(tileHandler);
+        log.warn("No move found");
+        return Optional.empty();
     }
 
     private void createMovePath(TileHandler tileHandler) {
@@ -52,8 +50,10 @@ public class MoveHandler {
             moveFrom = moveTo;
         }
         //add expanding
+        String path = movePath.stream().map(move -> move.getTo()).map(Object::toString).collect(Collectors.joining(","));
         int aggregatedMoves = aggregatePath(tileHandler);
-        log.info("Created move path with {}/{} steps, final step is {}", aggregatedMoves, movePath.size(), movePath.getLast().getTo());
+
+        log.info("Created move path with {}/{} steps, final step is {}. Path:{}", aggregatedMoves, movePath.size(), movePath.getLast().getTo(), path);
     }
 
     private int aggregatePath(TileHandler tileHandler) {
@@ -63,7 +63,7 @@ public class MoveHandler {
             for (Move move : new ArrayList<>(movePath)) {
                 Tile tileInPath = tileHandler.getTile(move.getFrom());
                 for (Tile neighbour : tileInPath.getNeighbours()) {
-                    if (neighbour.getMyArmySize() > 0 && tileInPath.isMine()) {
+                    if (neighbour.getMyArmySize() > 1 && tileInPath.isMine()) {
                         boolean inPath = movePath.stream().anyMatch(m -> m.getFrom() == neighbour.getIndex());
                         if (!inPath) {
                             movePath.addFirst(new Move(neighbour, tileInPath, "Aggregating path"));
