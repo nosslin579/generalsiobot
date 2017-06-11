@@ -14,7 +14,6 @@ public class MoveHandler {
     private final List<Locator> locators = new ArrayList<>();
 
     private GameState gameState = null;
-    private Tile cursor;
 
 
     private Deque<Move> movePath = new ArrayDeque<>();
@@ -23,7 +22,7 @@ public class MoveHandler {
     }
 
     public Optional<Move> getMove(TileHandler tileHandler) {
-        if (movePath.isEmpty() || cursor == null || !cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
+        if (movePath.isEmpty()) {
             createMovePath(tileHandler);
         }
 
@@ -33,14 +32,16 @@ public class MoveHandler {
 //                log.info("Moving to {} army size is {} path size is now:{}", move, tileHandler.getTile(move.getFrom()).getField().asVisibleField().getArmy(), movePath.size());
                 return Optional.of(move);
             }
+
         }
-        log.warn("No move found");
-        return Optional.empty();
+        if (tileHandler.getMyGeneral().getMyArmySize() == 0) {
+            log.warn("No move found");
+            return Optional.empty();
+        }
+        return getMove(tileHandler);
     }
 
     private void createMovePath(TileHandler tileHandler) {
-        cursor = tileHandler.getMyGeneral();
-
         int loopSafety = 0;
         Scores penalties = Scores.of(scorers, tileHandler);
         Tile goal = penalties.getMin(tileHandler.getTiles());
