@@ -2,9 +2,7 @@ package se.nosslin579.bamse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.GameState;
-import pl.joegreen.sergeants.framework.model.VisibleField;
 import se.nosslin579.bamse.locator.Locator;
 import se.nosslin579.bamse.scorer.Scorer;
 
@@ -24,61 +22,75 @@ public class MoveHandler {
     public MoveHandler() {
     }
 
-    public Move[] getMoves(TileHandler tileHandler) {
+    public Optional<Move> getMove(TileHandler tileHandler) {
         if (movePath.isEmpty() || cursor == null || !cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
-            cursor = tileHandler.getMyGeneral();
-
-            int loopSafety = 0;
-            Scores penalties = Scores.of(scorers, tileHandler);
-            Tile goal = penalties.getMin(tileHandler.getTiles());
-            Tile moveFrom = tileHandler.getMyGeneral();
-            while (moveFrom != goal && loopSafety++ < 200) {
-                Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
-                movePath.add(new Move(moveFrom, moveTo));
-                moveFrom = moveTo;
-            }
+            createMovePath(tileHandler);
         }
 
-        //add expanding
-        //add aggregation
-
-        Move move = movePath.pop();
-        log.info("Moving to {} path size is now:{}", move, movePath.size());
-        return new Move[]{move};
+        while (!movePath.isEmpty()) {
+            Move move = movePath.pop();
+            if (isValid(move, tileHandler)) {
+//                log.info("Moving to {} army size is {} path size is now:{}", move, tileHandler.getTile(move.getFrom()).getField().asVisibleField().getArmy(), movePath.size());
+                return Optional.of(move);
+            }
+        }
+        log.warn("No move found");
+        return Optional.empty();
     }
 
-    private Change getChanges(GameState newGameState) {
-        Change ret = new Change();
+    private void createMovePath(TileHandler tileHandler) {
+        cursor = tileHandler.getMyGeneral();
 
-        for (Field newField : newGameState.getFields()) {
-            Field oldField = gameState.getFieldsMap().get(newField.getPosition());
-            if (oldField.isVisible() && newField.isVisible()) {
-                VisibleField of = oldField.asVisibleField();
-                VisibleField nf = newField.asVisibleField();
-                boolean sameOwner = of.getOwnerIndex().equals(nf.getOwnerIndex());
-                if (sameOwner && of.getArmy() > 2 && nf.getArmy() <= 2) {
-                    if (of.isOwnedByEnemy()) {
-                        ret.moveFromEnemy = Optional.of(of.getIndex());
-                    } else if (of.isOwnedByMe()) {
-                        ret.moveFromOwn = Optional.of(of.getIndex());
-                    }
-                } else if (!sameOwner) {
-                    if (nf.isOwnedByEnemy()) {
-                        ret.moveToEnemy = Optional.of(nf.getIndex());
-                    } else if (nf.isOwnedByMe()) {
-                        ret.moveToOwn = Optional.of(nf.getIndex());
-                    }
-                } else if (nf.getArmy() - of.getArmy() > 2) {
-                    if (nf.isOwnedByEnemy()) {
-                        ret.moveToEnemy = Optional.of(nf.getIndex());
-                    } else if (nf.isOwnedByMe()) {
-                        ret.moveToOwn = Optional.of(nf.getIndex());
+        int loopSafety = 0;
+        Scores penalties = Scores.of(scorers, tileHandler);
+        Tile goal = penalties.getMin(tileHandler.getTiles());
+        Tile moveFrom = tileHandler.getMyGeneral();
+        while (moveFrom != goal && loopSafety++ < 200) {
+            Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
+            movePath.add(new Move(moveFrom, moveTo));
+            moveFrom = moveTo;
+        }
+        //add expanding
+        int aggregatedMoves = aggregate(tileHandler);
+        log.info("Created move path with {}/{} steps, final step is {}", aggregatedMoves, movePath.size(), movePath.getLast().getTo());
+    }
+
+    private int aggregate(TileHandler tileHandler) {
+        int originalSize = movePath.size();
+        while (true) {
+            int size = movePath.size();
+            for (Move move : new ArrayList<>(movePath)) {
+                Tile tileInPath = tileHandler.getTile(move.getFrom());
+                for (Tile neighbour : tileInPath.getNeighbours()) {
+                    if (neighbour.getMyArmySize() > 0 && tileInPath.isMine()) {
+                        boolean inPath = movePath.stream().anyMatch(m -> m.getFrom() == neighbour.getIndex());
+                        if (!inPath) {
+                            movePath.addFirst(new Move(neighbour, tileInPath));
+                        }
                     }
                 }
             }
+            if (size == movePath.size()) {
+                return movePath.size() - originalSize;
+            }
         }
-        return ret;
+    }
 
+    private boolean isValid(Move move, TileHandler tileHandler) {
+        Tile from = tileHandler.getTile(move.getFrom());
+        Tile to = tileHandler.getTile(move.getTo());
+        if (to.getField().isObstacle()) {
+            throw new IllegalStateException("Can't move a mountain");
+        }
+        if (from.getMyArmySize() < 2) {
+            //not my tile or not enough army
+            return false;
+        }
+        if (!to.isMine() && from.getMyArmySize() < to.getField().asVisibleField().getArmy()) {
+            //unsuccessful attack
+            return false;
+        }
+        return true;
     }
 
     public List<Locator> getLocators() {
@@ -87,12 +99,5 @@ public class MoveHandler {
 
     public List<Scorer> getScorers() {
         return scorers;
-    }
-
-    private class Change {
-        Optional<Integer> moveFromOwn = Optional.empty();
-        Optional<Integer> moveFromEnemy = Optional.empty();
-        Optional<Integer> moveToOwn = Optional.empty();
-        Optional<Integer> moveToEnemy = Optional.empty();
     }
 }

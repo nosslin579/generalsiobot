@@ -22,6 +22,10 @@ public class Tile {
         return field.isVisible() && field.asVisibleField().isOwnedByMe();
     }
 
+    public int getMyArmySize() {
+        return isMine() ? getField().asVisibleField().getArmy() : 0;
+    }
+
     public Optional<Field> updateField(Field field) {
         TileType updated = lastKnown.getByField(field);
         Optional<Field> ret = updated == lastKnown ? Optional.empty() : Optional.of(this.field);

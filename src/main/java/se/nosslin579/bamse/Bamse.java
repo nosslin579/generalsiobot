@@ -60,15 +60,11 @@ public class Bamse implements Bot {
         }
 
         tileHandler.update(newGameState);
-//        moveHandler.update(newGameState, tileHandler);
-
 
 //        Object[] scores = Arrays.stream(scoreMap.getFieldWrappers()).filter(field -> field.getField().isVisible()).toArray();
 
         if (newGameState.getTurn() > 24) {
-            for (Move move : moveHandler.getMoves(tileHandler)) {
-                actions.move(move.getFrom(), move.getTo());
-            }
+            moveHandler.getMove(tileHandler).ifPresent(move -> actions.move(move.getFrom(), move.getTo()));
         }
     }
 
