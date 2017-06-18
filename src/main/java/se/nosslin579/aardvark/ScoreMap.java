@@ -151,21 +151,27 @@ public class ScoreMap {
     }
 
     public Move getMove() {
-        Scores penalties = Scores.of(scorers, this);
+        try {
+            Scores penalties = Scores.of(scorers, this);
 
-        if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
-            cursor = myGeneral;
-        }
-        FieldWrapper moveTo = penalties.getMin(cursor.getNeighbours());
-        Move ret = new Move(cursor, moveTo);
-        cursor = moveTo;
+            if (!cursor.isMine() || cursor.getField().asVisibleField().getArmy() < 2) {
+                cursor = myGeneral;
+            }
+            FieldWrapper moveTo = penalties.getMin(cursor.getNeighbours());
+            Move ret = new Move(cursor, moveTo);
+            cursor = moveTo;
 
-        if (previous.getTo() == ret.getFrom() && previous.getFrom() == ret.getTo()) {
-            log.warn("Moving back to previous. Turn={} {} {}", turn, ret, myPlayerIndex);
+            if (previous.getTo() == ret.getFrom() && previous.getFrom() == ret.getTo()) {
+                log.warn("Moving back to previous. Turn={} {} {}", turn, ret, myPlayerIndex);
+            }
+            moveListeners.forEach(moveListener -> moveListener.beforeMove(ret));
+            previous = ret;
+            return ret;
+        } catch (Exception e) {
+            log.error("Move failed", e);
+            System.exit(0);
         }
-        moveListeners.forEach(moveListener -> moveListener.beforeMove(ret));
-        previous = ret;
-        return ret;
+        return null;
     }
 
     public int getTurn() {
