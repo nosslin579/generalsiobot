@@ -31,6 +31,9 @@ public class Aardvark implements Bot {
         if (scoreMap == null) {
             scoreMap = ScoreMap.of(newGameState, config);
             return;
+        } else if (newGameState.getTurn() > 3000) {
+            log.error("Giving up");
+            System.exit(0);
         }
 
         scoreMap.update(newGameState);
