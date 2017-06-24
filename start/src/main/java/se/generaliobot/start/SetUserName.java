@@ -1,4 +1,4 @@
-package se.generaliobot.bamse;
+package se.generaliobot.start;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +12,11 @@ public class SetUserName {
         GeneralsApi generalsApi = GeneralsApi.create();
         generalsApi.connect();
         generalsApi.onConnected(() -> {
-            log.info("set Name");
-            generalsApi.setUsername("dc42d51f5b7246119e39302962b72b4f001", "[Bot] Bamse");
+            log.info("Setting name");
+            generalsApi.setUsername("dc42d51f5b7246119e39302962b72b4f004", "[Bot] Copter");
         });
         generalsApi.onSetUsernameError(event -> {
-            log.error("set Name failed {}", event);
+            log.error("Set name failed {}", event);
 
         });
         Thread.sleep(5000);

@@ -1,0 +1,23 @@
+package se.generaliobot.copter;
+
+import org.junit.Test;
+import pl.joegreen.sergeants.simulator.GameMap;
+import pl.joegreen.sergeants.simulator.SaveHistorySimulatorListener;
+import pl.joegreen.sergeants.simulator.Simulator;
+import pl.joegreen.sergeants.simulator.SimulatorFactory;
+import se.generaliobot.bamse.Bamse;
+import se.generaliobot.copter.config.Config;
+
+import java.util.Optional;
+
+public class CopterVsBamse {
+    @Test
+    public void runGameCopterVsBamse() {
+        GameMap playerMap = SimulatorFactory.createMapFromReplayFile("../test.json");
+        Simulator of = SimulatorFactory.of(playerMap, 400, Bamse.provider(new se.generaliobot.bamse.config.Config()), Copter.provider(new Config()));
+        of.getListeners().add(new SaveHistorySimulatorListener("../"));
+        Optional<Integer> start = of.start();
+        System.out.println(start);
+//        Assert.assertEquals(Optional.of(1), start);
+    }
+}

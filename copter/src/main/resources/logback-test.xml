@@ -1,0 +1,17 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{mm:ss} %.-1level [%thread] %logger{20} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="se.generaliobot.copter.Copter" level="DEBUG"/>
+    <!--<logger name="se.generaliobot.bamse.MoveHandler" level="DEBUG" />-->
+    <!--<logger name="se.generaliobot.bamse.scorer.LocatorScorer" level="DEBUG" />-->
+    <!--<logger name="se.generaliobot.bamse.locator.BorderEnemyLocator" level="DEBUG" />-->
+</configuration>

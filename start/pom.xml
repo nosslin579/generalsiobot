@@ -52,6 +52,10 @@
             <groupId>se.nosslin579</groupId>
             <artifactId>bamse</artifactId>
         </dependency>
+        <dependency>
+            <groupId>se.nosslin579</groupId>
+            <artifactId>copter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
