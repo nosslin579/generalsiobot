@@ -21,18 +21,18 @@ public class MoveHandler {
 
     public MoveHandler(TileHandler tileHandler) {
         this.tileHandler = tileHandler;
-        cursour = tileHandler.getMyGeneral();
+        setCursour(tileHandler.getMyGeneral());
     }
 
     public Move getFirstRoundMove() {
         if (cursour.getMyArmySize() < 2) {
-            cursour = tileHandler.getMyGeneral();
+            setCursour(tileHandler.getMyGeneral());
         }
         return getCursourMove();
     }
 
 
-    public Optional<Move> getMove() {
+    public Optional<Move> getMove(int turnsToNextRound) {
         while (!aggregatedMoves.isEmpty()) {
             Move move = aggregatedMoves.pop();
             if (isValid(move)) {
@@ -54,13 +54,16 @@ public class MoveHandler {
             return validate(expansionMove.get());
         }
 
-        return Optional.empty();
+        return validate(getFirstRoundMove());
+
+//        return Optional.empty();
     }
 
     private Move getCursourMove() {
         Tile moveFrom = cursour;
         Scores penalties = Scores.of(scorers, tileHandler);
-        cursour = penalties.getMin(cursour.getNeighbours());
+        Tile[] enemyTiles = Arrays.stream(cursour.getNeighbours()).filter(Tile::isEnemy).toArray(Tile[]::new);
+        cursour = penalties.getMin(enemyTiles.length == 0 ? cursour.getNeighbours() : enemyTiles);
         return new Move(moveFrom, cursour, "Cursour");
     }
 
@@ -88,7 +91,7 @@ public class MoveHandler {
                 .forEach(checkpointMoves::add);
         cursour = tileHandler.getTile(checkpointMoves.getLast().getTo());
         String path = checkpointMoves.stream().map(Move::getTo).map(Object::toString).collect(Collectors.joining(","));
-        log.info("Created checkpoint path:{} with cursour:{}", path, cursour);
+        log.debug("Created checkpoint path:{} with cursour:{}", path, cursour);
     }
 
     private List<Move> createPath(Scores penalties, Tile goal, Tile moveFrom) {
@@ -140,7 +143,7 @@ public class MoveHandler {
         }
 
         String path = aggregatedMoves.stream().map(Move::getFrom).map(Object::toString).collect(Collectors.joining(","));
-        log.info("Created aggregated path:{}", path);
+        log.debug("Created aggregated path:{}", path);
     }
 
     private List<Move> getNeighbourAggregationMoves(List<Integer> tagged) {
@@ -187,4 +190,7 @@ public class MoveHandler {
         return scorers;
     }
 
+    private void setCursour(Tile cursour) {
+        this.cursour = cursour;
+    }
 }

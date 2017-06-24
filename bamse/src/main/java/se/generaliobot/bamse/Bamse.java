@@ -67,8 +67,10 @@ public class Bamse implements Bot {
 
 
         if (newGameState.getTurn() > 24) {
-            if (newGameState.getTurn() % 50 == 0) {
-                log.info("New round");
+            int turnOnRound = newGameState.getTurn() % 50;
+            int turnsToNextRound = turnOnRound - 50;
+            if (turnOnRound == 0) {
+                log.debug("New round");
                 moveHandler.initializeNewRound();
             }
 
@@ -76,8 +78,8 @@ public class Bamse implements Bot {
                 Move move = moveHandler.getFirstRoundMove();
                 actions.move(move.getFrom(), move.getTo());
             } else {
-                moveHandler.getMove().ifPresent(move -> {
-                    log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
+                moveHandler.getMove(turnsToNextRound).ifPresent(move -> {
+                    log.debug("At turn:{} doing move:{}", newGameState.getTurn(), move);
                     actions.move(move.getFrom(), move.getTo());
                 });
             }

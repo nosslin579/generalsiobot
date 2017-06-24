@@ -20,6 +20,6 @@ public class BamseVsAardvarkTest {
         of.getListeners().add(new SaveHistorySimulatorListener("../"));
         Optional<Integer> start = of.start();
         System.out.println(start);
-        Assert.assertEquals(Optional.of(0), start);
+        Assert.assertEquals(Optional.of(1), start);
     }
 }

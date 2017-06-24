@@ -30,6 +30,10 @@ public class Tile {
         return isMine() && !tile.isMine() && !tile.getField().isObstacle() && ((field.asVisibleField().getArmy() - tile.field.asVisibleField().getArmy()) > 1);
     }
 
+    public boolean isEnemy() {
+        return field.isVisible() && field.asVisibleField().isOwnedByEnemy() || Arrays.asList(TileType.ENEMY, TileType.ENEMY_CITY, TileType.ENEMY_CROWN).contains(lastKnown);
+    }
+
     public Optional<Field> updateField(Field field) {
         TileType updated = lastKnown.getByField(field);
         Optional<Field> ret = updated == lastKnown ? Optional.empty() : Optional.of(this.field);
