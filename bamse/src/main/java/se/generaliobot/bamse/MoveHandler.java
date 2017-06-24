@@ -127,7 +127,7 @@ public class MoveHandler {
     private void createAggregateMoves() {
         aggregatedMoves.clear();
 
-        for (int i = 0; i < 8; i++) {//todo config
+        for (int i = 0; i < 12; i++) {//todo config
             List<Integer> tagged = Stream.concat(checkpointMoves.stream(), aggregatedMoves.stream())
                     .flatMap(m -> Stream.of(m.getFrom(), m.getTo()))
                     .collect(Collectors.toList());

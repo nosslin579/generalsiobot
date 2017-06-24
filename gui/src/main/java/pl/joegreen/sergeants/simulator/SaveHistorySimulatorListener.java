@@ -14,11 +14,20 @@ import java.util.List;
 
 public class SaveHistorySimulatorListener implements SimulatorListener {
     private final Logger LOGGER = LoggerFactory.getLogger(SaveHistorySimulatorListener.class);
+    private final String path;
 
     private ObjectMapper om = new ObjectMapper();
     private List<String> history = new ArrayList<>();
     private GameMap gameMap;
     private int ht = 0;
+
+    public SaveHistorySimulatorListener(String path) {
+        this.path = path;
+    }
+
+    public SaveHistorySimulatorListener() {
+        this("");
+    }
 
     @Override
     public void afterHalfTurn(int halfTurnCounter, Tile[] tiles) {
@@ -51,7 +60,7 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
 
     private void saveGameAsJson() {
         try {
-            final File file = new File("gui/replay-data.js");
+            final File file = new File(path + "gui/replay-data.js");
             final PrintWriter printWriter = new PrintWriter(file);
             printWriter.println("var generalIoReplay = {};");
             printWriter.println("window.generalIoReplay = generalIoReplay;");
