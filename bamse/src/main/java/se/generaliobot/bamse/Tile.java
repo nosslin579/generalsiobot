@@ -6,6 +6,7 @@ import pl.joegreen.sergeants.framework.model.Field;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Tile {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -124,5 +125,15 @@ public class Tile {
                 ", type=" + field.getTerrainType() +
                 ", mine=" + isMine() +
                 '}';
+    }
+
+    public Tile[] getSurroundingTiles() {
+        Map<Tile, Long> collect = Arrays.stream(neighbours)
+                .map(Tile::getNeighbours)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return collect.keySet().stream()
+                .filter(tile -> collect.get(tile) > 1)
+                .toArray(Tile[]::new);
     }
 }

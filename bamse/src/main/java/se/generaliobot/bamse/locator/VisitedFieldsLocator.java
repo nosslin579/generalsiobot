@@ -20,6 +20,6 @@ public class VisitedFieldsLocator implements Locator, FieldListener {
 
     @Override
     public void onFieldFound(VisibleField fieldFound, TileHandler tileHandler) {
-        scores.put(fieldFound.getIndex(), GARANTEED_NOT_HERE);
+        scores.setScore(fieldFound.getIndex(), GARANTEED_NOT_HERE);
     }
 }

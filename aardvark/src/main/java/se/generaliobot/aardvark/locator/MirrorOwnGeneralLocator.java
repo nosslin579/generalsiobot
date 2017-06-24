@@ -16,8 +16,8 @@ public class MirrorOwnGeneralLocator implements Locator {
     @Override
     public Scores getLocationScore() {
         FieldWrapper myGeneral = scoreMap.getMyGeneral();
-        int x = scoreMap.getWidth() - myGeneral.getX();
-        int y = scoreMap.getHeight() - myGeneral.getY();
+        int x = scoreMap.getWidth() - myGeneral.getX() - 1;
+        int y = scoreMap.getHeight() - myGeneral.getY() - 1;
         FieldWrapper mostLikely = scoreMap.getTile(x, y);
         Map<Integer, Double> negativeDistances = mostLikely.getMovePenalty(scoreMap, fieldWrapper -> -1d);
         return new Scores(negativeDistances, -10000d);

@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class Scores {
     private final static Logger log = LoggerFactory.getLogger(Scores.class);
+    public static final Scores EMPTY = new Scores();
     private final Map<Integer, Double> map;
     private final Double defaultValue;
 
@@ -28,7 +29,7 @@ public class Scores {
     }
 
 
-    public void put(int index, Double score) {
+    public void setScore(int index, Double score) {
         map.put(index, score);
     }
 
@@ -105,5 +106,13 @@ public class Scores {
             sb.append(scoreAsString).append(" ");
         }
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Scores{" +
+                "defult=" + defaultValue +
+                "map=" + map +
+                '}';
     }
 }

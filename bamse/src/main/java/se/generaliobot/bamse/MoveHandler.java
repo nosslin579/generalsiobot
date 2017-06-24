@@ -62,8 +62,7 @@ public class MoveHandler {
     private Move getCursourMove() {
         Tile moveFrom = cursour;
         Scores penalties = Scores.of(scorers, tileHandler);
-        Tile[] enemyTiles = Arrays.stream(cursour.getNeighbours()).filter(Tile::isEnemy).toArray(Tile[]::new);
-        cursour = penalties.getMin(enemyTiles.length == 0 ? cursour.getNeighbours() : enemyTiles);
+        cursour = penalties.getMin(cursour.getNeighbours());
         return new Move(moveFrom, cursour, "Cursour");
     }
 
@@ -96,10 +95,10 @@ public class MoveHandler {
 
     private List<Move> createPath(Scores penalties, Tile goal, Tile moveFrom) {
         List<Move> ret = new ArrayList<>();
-        int loopSafety = 0;
-        while (moveFrom != goal && tileHandler.getTile(moveFrom.getIndex()).getField().isVisible() && loopSafety++ < 200) {
+        int maxMoves = 10;
+        while (moveFrom != goal && tileHandler.getTile(moveFrom.getIndex()).getField().isVisible() && maxMoves-- != 0) {
             Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
-            ret.add(new Move(moveFrom, moveTo, "Path"));
+            ret.add(new Move(moveFrom, moveTo, "Checkpoint"));
             moveFrom = moveTo;
             if (moveTo == goal) {
                 return ret;

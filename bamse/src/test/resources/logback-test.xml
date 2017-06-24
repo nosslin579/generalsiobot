@@ -6,7 +6,12 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <logger name="se.generaliobot.bamse.Bamse" level="DEBUG" />
+    <!--<logger name="se.generaliobot.bamse.MoveHandler" level="DEBUG" />-->
+    <logger name="se.generaliobot.bamse.scorer.LocatorScorer" level="DEBUG" />
+    <logger name="se.generaliobot.bamse.locator.BorderEnemyLocator" level="DEBUG" />
 </configuration>

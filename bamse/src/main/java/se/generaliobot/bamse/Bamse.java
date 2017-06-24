@@ -48,6 +48,7 @@ public class Bamse implements Bot {
             addBean(new UnreachableLocator(tileHandler));
             addBean(new LocatorScorer(moveHandler.getLocators(), config));
             addBean(new MirrorOwnGeneralLocator(tileHandler));
+            addBean(new BorderEnemyLocator(tileHandler));
 
             int width = newGameState.getColumns();
             int height = newGameState.getRows();
