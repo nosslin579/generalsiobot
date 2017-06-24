@@ -37,4 +37,24 @@ public class Move {
                 ", type=" + type +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Move)) return false;
+
+        Move move = (Move) o;
+
+        if (from != move.from) return false;
+        if (to != move.to) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = from;
+        result = 31 * result + to;
+        return result;
+    }
 }

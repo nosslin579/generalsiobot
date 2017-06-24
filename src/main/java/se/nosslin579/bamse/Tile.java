@@ -26,6 +26,10 @@ public class Tile {
         return isMine() ? getField().asVisibleField().getArmy() : 0;
     }
 
+    public boolean canCapture(Tile tile) {
+        return isMine() && !tile.isMine() && !tile.getField().isObstacle() && ((field.asVisibleField().getArmy() - tile.field.asVisibleField().getArmy()) > 1);
+    }
+
     public Optional<Field> updateField(Field field) {
         TileType updated = lastKnown.getByField(field);
         Optional<Field> ret = updated == lastKnown ? Optional.empty() : Optional.of(this.field);
@@ -111,9 +115,10 @@ public class Tile {
 
     @Override
     public String toString() {
-        return "FieldWrapper{" +
-                "index=" + field.getIndex() +
-                ", field=" + field.getTerrainType() +
+        return "Tile{" +
+                "index=" + getIndex() +
+                ", type=" + field.getTerrainType() +
+                ", mine=" + isMine() +
                 '}';
     }
 }

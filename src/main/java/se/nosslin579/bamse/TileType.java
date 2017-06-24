@@ -91,7 +91,7 @@ public enum TileType {
     ENEMY_CITY('C', Config::getEnemyCityPenalty) {
         @Override
         TileType getByField(Field field) {
-            if (field.asVisibleField().isOwnedByMe()) {
+            if (field.isVisible() && field.asVisibleField().isOwnedByMe()) {
                 return OWN_CITY;
             }
             return ENEMY_CITY;

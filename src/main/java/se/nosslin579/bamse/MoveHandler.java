@@ -2,82 +2,167 @@ package se.nosslin579.bamse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.joegreen.sergeants.framework.model.GameState;
 import se.nosslin579.bamse.locator.Locator;
 import se.nosslin579.bamse.scorer.Scorer;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MoveHandler {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final List<Scorer> scorers = new ArrayList<>();
     private final List<Locator> locators = new ArrayList<>();
+    private final TileHandler tileHandler;
 
-    private GameState gameState = null;
+    private final Deque<Move> checkpointMoves = new ArrayDeque<>();
+    private final Deque<Move> aggregatedMoves = new ArrayDeque<>();
+    private Tile cursour;
 
-
-    private Deque<Move> movePath = new ArrayDeque<>();
-
-    public MoveHandler() {
+    public MoveHandler(TileHandler tileHandler) {
+        this.tileHandler = tileHandler;
+        cursour = tileHandler.getMyGeneral();
     }
 
-    public Optional<Move> getMove(TileHandler tileHandler) {
-        boolean anyValid = movePath.stream().anyMatch(m -> isValid(m, tileHandler));
-        if (!anyValid) {
-            createMovePath(tileHandler);
+    public Move getFirstRoundMove() {
+        if (cursour.getMyArmySize() < 2) {
+            cursour = tileHandler.getMyGeneral();
         }
+        return getCursourMove();
+    }
 
-        while (!movePath.isEmpty()) {
-            Move move = movePath.pop();
-            if (isValid(move, tileHandler)) {
+
+    public Optional<Move> getMove() {
+        while (!aggregatedMoves.isEmpty()) {
+            Move move = aggregatedMoves.pop();
+            if (isValid(move)) {
                 return Optional.of(move);
             }
         }
 
-        log.warn("No move found");
+        if (!checkpointMoves.isEmpty()) {
+            return validate(checkpointMoves.pop());
+        }
+
+        if (cursour.getMyArmySize() > 1) {
+            Move cursourMove = getCursourMove();
+            return validate(cursourMove);
+        }
+
+        Optional<Move> expansionMove = getExpansionMove();
+        if (expansionMove.isPresent()) {
+            return validate(expansionMove.get());
+        }
+
         return Optional.empty();
     }
 
-    private void createMovePath(TileHandler tileHandler) {
-        int loopSafety = 0;
+    private Move getCursourMove() {
+        Tile moveFrom = cursour;
+        Scores penalties = Scores.of(scorers, tileHandler);
+        cursour = penalties.getMin(cursour.getNeighbours());
+        return new Move(moveFrom, cursour, "Cursour");
+    }
+
+    private Optional<Move> validate(Move move) {
+        if (isValid(move)) {
+            return Optional.of(move);
+        } else {
+            log.warn("Invalid move at turn:{} from:{} to:{}", tileHandler.getTurn(), tileHandler.getTile(move.getFrom()), tileHandler.getTile(move.getTo()));
+            return Optional.empty();
+        }
+    }
+
+    public void initializeNewRound() {
+        createCheckpointPath();
+        createAggregateMoves();
+    }
+
+    private void createCheckpointPath() {
+        checkpointMoves.clear();
         Scores penalties = Scores.of(scorers, tileHandler);
         Tile goal = penalties.getMin(tileHandler.getTiles());
         Tile moveFrom = tileHandler.getMyGeneral();
-        while (moveFrom != goal && loopSafety++ < 200) {
+        createPath(penalties, goal, moveFrom).stream()
+                .filter(move -> tileHandler.getTile(move.getFrom()).getField().isVisible())
+                .forEach(checkpointMoves::add);
+        cursour = tileHandler.getTile(checkpointMoves.getLast().getTo());
+        String path = checkpointMoves.stream().map(Move::getTo).map(Object::toString).collect(Collectors.joining(","));
+        log.info("Created checkpoint path:{} with cursour:{}", path, cursour);
+    }
+
+    private List<Move> createPath(Scores penalties, Tile goal, Tile moveFrom) {
+        List<Move> ret = new ArrayList<>();
+        int loopSafety = 0;
+        while (moveFrom != goal && tileHandler.getTile(moveFrom.getIndex()).getField().isVisible() && loopSafety++ < 200) {
             Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
-            movePath.add(new Move(moveFrom, moveTo, "Path"));
+            ret.add(new Move(moveFrom, moveTo, "Path"));
             moveFrom = moveTo;
-        }
-        //add expanding
-        String path = movePath.stream().map(move -> move.getTo()).map(Object::toString).collect(Collectors.joining(","));
-        int aggregatedMoves = aggregatePath(tileHandler);
-
-        log.info("Created move path with {}/{} steps, final step is {}. Path:{}", aggregatedMoves, movePath.size(), movePath.getLast().getTo(), path);
-    }
-
-    private int aggregatePath(TileHandler tileHandler) {
-        int originalSize = movePath.size();
-        while (true) {
-            int size = movePath.size();
-            for (Move move : new ArrayList<>(movePath)) {
-                Tile tileInPath = tileHandler.getTile(move.getFrom());
-                for (Tile neighbour : tileInPath.getNeighbours()) {
-                    if (neighbour.getMyArmySize() > 1 && tileInPath.isMine()) {
-                        boolean inPath = movePath.stream().anyMatch(m -> m.getFrom() == neighbour.getIndex());
-                        if (!inPath) {
-                            movePath.addFirst(new Move(neighbour, tileInPath, "Aggregating path"));
-                        }
-                    }
-                }
-            }
-            if (size == movePath.size()) {
-                return movePath.size() - originalSize;
+            if (moveTo == goal) {
+                return ret;
             }
         }
+        return ret;
     }
 
-    private boolean isValid(Move move, TileHandler tileHandler) {
+    private Optional<Move> getExpansionMove() {
+        Set<Tile> checkpointTiles = checkpointMoves.stream()
+                .flatMap(move -> Stream.of(move.getFrom(), move.getTo()))
+                .map(tileHandler::getTile)
+                .distinct()
+                .collect(Collectors.toSet());
+        return Arrays.stream(tileHandler.getTiles())
+                .filter(Tile::isMine)
+                .filter(tile -> tileHandler.getMyGeneral() != tile)
+                .filter(tile -> !checkpointTiles.contains(tile))
+                .map(from -> Arrays.stream(from.getNeighbours())
+                        .filter(from::canCapture)
+                        .findAny()
+                        .map(to -> (new Move(from, to, "Expansion"))))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findAny();
+    }
+
+    private void createAggregateMoves() {
+        aggregatedMoves.clear();
+
+        for (int i = 0; i < 20; i++) {//todo config
+            List<Integer> tagged = Stream.concat(checkpointMoves.stream(), aggregatedMoves.stream())
+                    .flatMap(m -> Stream.of(m.getFrom(), m.getTo()))
+                    .collect(Collectors.toList());
+
+            List<Move> m = getNeighbourAggregationMoves(tagged);
+            if (m == null) {
+                break;
+            }
+            m.forEach(aggregatedMoves::addFirst);
+        }
+
+        String path = aggregatedMoves.stream().map(Move::getFrom).map(Object::toString).collect(Collectors.joining(","));
+        log.info("Created aggregated path:{}", path);
+    }
+
+    private List<Move> getNeighbourAggregationMoves(List<Integer> tagged) {
+        for (Integer toIndex : tagged) {
+            List<Move> moves = Arrays.stream(tileHandler.getTile(toIndex).getNeighbours())
+                    .filter(from -> from.getMyArmySize() > 1)
+                    .map(Tile::getIndex)
+                    .filter(from -> !tagged.contains(from))
+                    .map(from -> new Move(from, toIndex, "Aggregation"))
+                    .collect(Collectors.toList());
+            if (!moves.isEmpty()) {
+                return moves;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isValid(Move move) {
+        if (move == null) {
+            return false;
+        }
         Tile from = tileHandler.getTile(move.getFrom());
         Tile to = tileHandler.getTile(move.getTo());
         if (to.getField().isObstacle()) {
@@ -101,4 +186,5 @@ public class MoveHandler {
     public List<Scorer> getScorers() {
         return scorers;
     }
+
 }

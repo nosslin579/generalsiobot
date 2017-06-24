@@ -23,7 +23,7 @@ public class Bamse implements Bot {
     final Actions actions;
     private final Config config;
     TileHandler tileHandler;
-    MoveHandler moveHandler = new MoveHandler();
+    MoveHandler moveHandler;
 
     public Bamse(Actions actions, Config config) {
         this.actions = actions;
@@ -38,6 +38,7 @@ public class Bamse implements Bot {
     public void onGameStateUpdate(GameState newGameState) {
         if (tileHandler == null) {
             tileHandler = TileHandler.of(newGameState, config);
+            moveHandler = new MoveHandler(tileHandler);
 
             addBean(new SetViewedFieldListener());
             addBean(new VisitedFieldsLocator());
@@ -57,6 +58,7 @@ public class Bamse implements Bot {
                     .collect(Collectors.joining(", "));
             int myGeneral = tileHandler.getMyGeneral().getIndex();
             log.info("Map is {} x {}, my general is at index {} and obstacles is at {}", width, height, myGeneral, obstacles);
+
         }
 
         tileHandler.update(newGameState);
@@ -67,13 +69,18 @@ public class Bamse implements Bot {
         if (newGameState.getTurn() > 24) {
             if (newGameState.getTurn() % 50 == 0) {
                 log.info("New round");
+                moveHandler.initializeNewRound();
             }
 
-            moveHandler.getMove(tileHandler)
-                    .ifPresent(move -> {
-                        log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
-                        actions.move(move.getFrom(), move.getTo());
-                    });
+            if (newGameState.getTurn() < 50) {
+                Move move = moveHandler.getFirstRoundMove();
+                actions.move(move.getFrom(), move.getTo());
+            } else {
+                moveHandler.getMove().ifPresent(move -> {
+                    log.info("At turn:{} doing move:{}", newGameState.getTurn(), move);
+                    actions.move(move.getFrom(), move.getTo());
+                });
+            }
         }
     }
 
@@ -99,4 +106,8 @@ public class Bamse implements Bot {
     public void onGameStarted(GameStarted gameStarted) {
     }
 
+    @Override
+    public String toString() {
+        return "Bamse";
+    }
 }

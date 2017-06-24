@@ -18,9 +18,11 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
     private ObjectMapper om = new ObjectMapper();
     private List<String> history = new ArrayList<>();
     private GameMap gameMap;
+    private int ht = 0;
 
     @Override
     public void afterHalfTurn(int halfTurnCounter, Tile[] tiles) {
+        ht = halfTurnCounter;
         try {
             history.add(om.writeValueAsString(Arrays.stream(tiles).map(TileWrapper::new).toArray()));
         } catch (JsonProcessingException e) {
@@ -37,6 +39,7 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
 
     @Override
     public void onGameEnd(Player winner) {
+        LOGGER.info("At turn {} the winner is {}\n", ht, winner);
         saveGameAsJson();
 
     }
@@ -58,7 +61,7 @@ public class SaveHistorySimulatorListener implements SimulatorListener {
             history.forEach(s -> printWriter.println("generalIoReplay.history.push(JSON.parse('" + s + "'));"));
             printWriter.flush();
             printWriter.close();
-            LOGGER.info("******* A js file with replay has been created at: {}", file.getAbsoluteFile());
+            LOGGER.info("A js file with replay has been created at: {}", file.getAbsoluteFile());
         } catch (IOException e) {
             LOGGER.error("Could not write json data history", e);
         }
