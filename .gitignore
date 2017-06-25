@@ -18,3 +18,5 @@ target/
 
 # Generated after simulating a match
 replay-data.js
+
+*.log
