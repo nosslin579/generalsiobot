@@ -2,11 +2,9 @@ package se.generaliobot.copter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.generaliobot.copter.scorer.Scorer;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Scores {
@@ -41,19 +39,14 @@ public class Scores {
         return map.get(fw1.getIndex()) < map.get(fw2.getIndex()) ? fw1 : fw2;
     }
 
-    public static Scores of(List<Scorer> scorers, TileHandler tileHandler) {
-        Scores ret = new Scores();
-        for (Scorer scorer : scorers) {
-            Scores scores = scorer.getScores(tileHandler);
-            ret.add(scores);
-        }
-        return ret;
-    }
-
     public void log(Object source, int... index) {
         for (int i : index) {
             log.info("Scores from {} gave {} score {}", source.getClass().getSimpleName(), i, getScore(i));
         }
+    }
+
+    public void add(TileScore score) {
+        add(score.getTile().getIndex(), score.getScore());
     }
 
     public void add(Scores scores) {
@@ -89,6 +82,13 @@ public class Scores {
                 .get();
     }
 
+    public Tile getMax(Tile[] tiles) {
+        return Arrays.stream(tiles)
+                .filter(this::contains)
+                .reduce(this::getMax)
+                .get();
+    }
+
 
     public String getPrettyPrint(TileHandler tileHandler) {
         StringBuilder sb = new StringBuilder();
@@ -97,11 +97,13 @@ public class Scores {
                 sb.append(System.lineSeparator());
             }
             Double scoreAsInt = map.get(tile.getIndex());
-            String scoreAsString = String.valueOf(scoreAsInt == null ? " x" : scoreAsInt.intValue());
+            String scoreAsString = String.valueOf(scoreAsInt == null ? "x" : scoreAsInt.intValue());
             if (scoreAsString.length() == 1) {
+                sb.append("  ");
+            } else if (scoreAsString.length() == 2) {
                 sb.append(" ");
-            } else if (scoreAsString.length() > 2) {
-                scoreAsString = ">9";
+            } else if (scoreAsString.length() > 3) {
+                scoreAsString = ">99";
             }
             sb.append(scoreAsString).append(" ");
         }

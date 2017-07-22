@@ -11,6 +11,7 @@
     </root>
 
     <logger name="se.generaliobot.copter.Copter" level="DEBUG"/>
+    <logger name="pl.joegreen.sergeants.framework.Bot" level="WARN"/>
     <!--<logger name="se.generaliobot.bamse.MoveHandler" level="DEBUG" />-->
     <!--<logger name="se.generaliobot.bamse.scorer.LocatorScorer" level="DEBUG" />-->
     <!--<logger name="se.generaliobot.bamse.locator.BorderEnemyLocator" level="DEBUG" />-->

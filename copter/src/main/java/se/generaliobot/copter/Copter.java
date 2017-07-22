@@ -12,8 +12,6 @@ import se.generaliobot.copter.config.Config;
 import se.generaliobot.copter.fieldlisteners.FieldListener;
 import se.generaliobot.copter.fieldlisteners.SetViewedFieldListener;
 import se.generaliobot.copter.locator.*;
-import se.generaliobot.copter.scorer.LocatorScorer;
-import se.generaliobot.copter.scorer.Scorer;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,7 +44,6 @@ public class Copter implements Bot {
             addBean(new CutOffLocator(tileHandler));
             addBean(new ExcludeEdgeLocator(tileHandler));
             addBean(new UnreachableLocator(tileHandler));
-            addBean(new LocatorScorer(moveHandler.getLocators(), config));
             addBean(new MirrorOwnGeneralLocator(tileHandler));
             addBean(new BorderEnemyLocator(tileHandler));
 
@@ -59,6 +56,7 @@ public class Copter implements Bot {
                     .collect(Collectors.joining(", "));
             int myGeneral = tileHandler.getMyGeneral().getIndex();
             log.info("Map is {} x {}, my general is at index {} and obstacles is at {}", width, height, myGeneral, obstacles);
+            moveHandler.initNewGame();
 
         }
 
@@ -68,22 +66,18 @@ public class Copter implements Bot {
 
 
         if (newGameState.getTurn() > 24) {
+            int roundNo = newGameState.getTurn() / 50;
             int turnOnRound = newGameState.getTurn() % 50;
             int turnsToNextRound = turnOnRound - 50;
             if (turnOnRound == 0) {
                 log.debug("New round");
-                moveHandler.initializeNewRound();
+                moveHandler.initializeNewRound(roundNo);
             }
 
-            if (newGameState.getTurn() < 50) {
-                Move move = moveHandler.getFirstRoundMove();
+            moveHandler.getMove(roundNo, turnsToNextRound).ifPresent(move -> {
+                log.debug("At turn:{} doing move:{}", newGameState.getTurn(), move);
                 actions.move(move.getFrom(), move.getTo());
-            } else {
-                moveHandler.getMove(turnsToNextRound).ifPresent(move -> {
-                    log.debug("At turn:{} doing move:{}", newGameState.getTurn(), move);
-                    actions.move(move.getFrom(), move.getTo());
-                });
-            }
+            });
         }
     }
 
@@ -94,10 +88,6 @@ public class Copter implements Bot {
         if (bean instanceof Locator) {
             moveHandler.getLocators().add((Locator) bean);
         }
-        if (bean instanceof Scorer) {
-            moveHandler.getScorers().add((Scorer) bean);
-        }
-
     }
 
     @Override

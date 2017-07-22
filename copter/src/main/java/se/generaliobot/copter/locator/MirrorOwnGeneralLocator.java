@@ -19,7 +19,7 @@ public class MirrorOwnGeneralLocator implements Locator {
         int x = tileHandler.getWidth() - myGeneral.getX() - 1;
         int y = tileHandler.getHeight() - myGeneral.getY() - 1;
         Tile mostLikely = tileHandler.getTile(x, y);
-        Map<Integer, Double> negativeDistances = mostLikely.getMovePenalty(tileHandler, fieldWrapper -> -1d);
+        Map<Integer, Double> negativeDistances = mostLikely.getMoveScore(tileHandler, tile -> -1d, 0d);
         return new Scores(negativeDistances, -10000d);
     }
 }

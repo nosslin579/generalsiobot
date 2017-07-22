@@ -3,67 +3,37 @@ package se.generaliobot.copter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.generaliobot.copter.locator.Locator;
-import se.generaliobot.copter.scorer.Scorer;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class MoveHandler {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final List<Scorer> scorers = new ArrayList<>();
     private final List<Locator> locators = new ArrayList<>();
     private final TileHandler tileHandler;
 
-    private final Deque<Move> checkpointMoves = new ArrayDeque<>();
-    private final Deque<Move> aggregatedMoves = new ArrayDeque<>();
-    private Tile cursour;
+    private MoveStrategy moveStrategy;
 
     public MoveHandler(TileHandler tileHandler) {
         this.tileHandler = tileHandler;
-        setCursour(tileHandler.getMyGeneral());
     }
 
-    public Move getFirstRoundMove() {
-        if (cursour.getMyArmySize() < 2) {
-            setCursour(tileHandler.getMyGeneral());
-        }
-        return getCursourMove();
+    public void initNewGame() {
+        this.moveStrategy = InitialExpansion.create(tileHandler, locators);
+    }
+
+    public void initializeNewRound(int roundNo) {
     }
 
 
-    public Optional<Move> getMove(int turnsToNextRound) {
-        while (!aggregatedMoves.isEmpty()) {
-            Move move = aggregatedMoves.pop();
-            if (isValid(move)) {
-                return Optional.of(move);
-            }
+    public Optional<Move> getMove(int roundNo, int turnsToNextRound) {
+        if (moveStrategy.isComplete()) {
+            log.info("MoveStrategy complete {}", moveStrategy);
+            moveStrategy = InitialExpansion.create(tileHandler, locators);
         }
-
-        if (!checkpointMoves.isEmpty()) {
-            return validate(checkpointMoves.pop());
-        }
-
-        if (cursour.getMyArmySize() > 1) {
-            Move cursourMove = getCursourMove();
-            return validate(cursourMove);
-        }
-
-        Optional<Move> expansionMove = getExpansionMove();
-        if (expansionMove.isPresent()) {
-            return validate(expansionMove.get());
-        }
-
-        return validate(getFirstRoundMove());
-
-//        return Optional.empty();
-    }
-
-    private Move getCursourMove() {
-        Tile moveFrom = cursour;
-        Scores penalties = Scores.of(scorers, tileHandler);
-        cursour = penalties.getMin(cursour.getNeighbours());
-        return new Move(moveFrom, cursour, "Cursour");
+        Tile crownTile = getCrownTile();
+        return moveStrategy.getMove(crownTile).flatMap(this::validate);
     }
 
     private Optional<Move> validate(Move move) {
@@ -73,92 +43,6 @@ public class MoveHandler {
             log.warn("Invalid move at turn:{} from:{} to:{}", tileHandler.getTurn(), tileHandler.getTile(move.getFrom()), tileHandler.getTile(move.getTo()));
             return Optional.empty();
         }
-    }
-
-    public void initializeNewRound() {
-        createCheckpointPath();
-        createAggregateMoves();
-    }
-
-    private void createCheckpointPath() {
-        checkpointMoves.clear();
-        Scores penalties = Scores.of(scorers, tileHandler);
-        Tile goal = penalties.getMin(tileHandler.getTiles());
-        Tile moveFrom = tileHandler.getMyGeneral();
-        createPath(penalties, goal, moveFrom).stream()
-                .filter(move -> tileHandler.getTile(move.getFrom()).getField().isVisible())
-                .forEach(checkpointMoves::add);
-        cursour = tileHandler.getTile(checkpointMoves.getLast().getTo());
-        String path = checkpointMoves.stream().map(Move::getTo).map(Object::toString).collect(Collectors.joining(","));
-        log.debug("Created checkpoint path:{} with cursour:{}", path, cursour);
-    }
-
-    private List<Move> createPath(Scores penalties, Tile goal, Tile moveFrom) {
-        List<Move> ret = new ArrayList<>();
-        int maxMoves = 10;
-        while (moveFrom != goal && tileHandler.getTile(moveFrom.getIndex()).getField().isVisible() && maxMoves-- != 0) {
-            Tile moveTo = penalties.getMin(moveFrom.getNeighbours());
-            ret.add(new Move(moveFrom, moveTo, "Checkpoint"));
-            moveFrom = moveTo;
-            if (moveTo == goal) {
-                return ret;
-            }
-        }
-        return ret;
-    }
-
-    private Optional<Move> getExpansionMove() {
-        Set<Tile> checkpointTiles = checkpointMoves.stream()
-                .flatMap(move -> Stream.of(move.getFrom(), move.getTo()))
-                .map(tileHandler::getTile)
-                .distinct()
-                .collect(Collectors.toSet());
-        return Arrays.stream(tileHandler.getTiles())
-                .filter(Tile::isMine)
-                .filter(tile -> tileHandler.getMyGeneral() != tile)
-                .filter(tile -> !checkpointTiles.contains(tile))
-                .map(from -> Arrays.stream(from.getNeighbours())
-                        .filter(from::canCapture)
-                        .findAny()
-                        .map(to -> (new Move(from, to, "Expansion"))))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findAny();
-    }
-
-    private void createAggregateMoves() {
-        aggregatedMoves.clear();
-
-        for (int i = 0; i < 12; i++) {//todo config
-            List<Integer> tagged = Stream.concat(checkpointMoves.stream(), aggregatedMoves.stream())
-                    .flatMap(m -> Stream.of(m.getFrom(), m.getTo()))
-                    .collect(Collectors.toList());
-
-            List<Move> m = getNeighbourAggregationMoves(tagged);
-            if (m == null) {
-                break;
-            }
-            m.forEach(aggregatedMoves::addFirst);
-        }
-
-        String path = aggregatedMoves.stream().map(Move::getFrom).map(Object::toString).collect(Collectors.joining(","));
-        log.debug("Created aggregated path:{}", path);
-    }
-
-    private List<Move> getNeighbourAggregationMoves(List<Integer> tagged) {
-        for (Integer toIndex : tagged) {
-            List<Move> moves = Arrays.stream(tileHandler.getTile(toIndex).getNeighbours())
-                    .filter(from -> from.getMyArmySize() > 1)
-                    .map(Tile::getIndex)
-                    .filter(from -> !tagged.contains(from))
-                    .map(from -> new Move(from, toIndex, "Aggregation"))
-                    .collect(Collectors.toList());
-            if (!moves.isEmpty()) {
-                return moves;
-            }
-        }
-
-        return null;
     }
 
     private boolean isValid(Move move) {
@@ -181,15 +65,19 @@ public class MoveHandler {
         return true;
     }
 
+    public Tile getCrownTile() {
+        Scores scores = new Scores();
+        locators.stream()
+                .map(Locator::getLocationScore)
+                .forEach(scores::add);
+        int mostLikelyIndex = scores.getMax();
+        log.debug("Guessing general is at index: {} with a score of {}", mostLikelyIndex, scores.getScore(mostLikelyIndex));
+        return tileHandler.getTile(mostLikelyIndex);
+    }
+
+
     public List<Locator> getLocators() {
         return locators;
     }
 
-    public List<Scorer> getScorers() {
-        return scorers;
-    }
-
-    private void setCursour(Tile cursour) {
-        this.cursour = cursour;
-    }
 }

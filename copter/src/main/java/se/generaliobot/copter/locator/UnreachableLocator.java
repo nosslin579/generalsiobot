@@ -15,7 +15,7 @@ public class UnreachableLocator implements Locator {
     private Scores scores = new Scores(new HashMap<>(), 0d);
 
     public UnreachableLocator(TileHandler tileHandler) {
-        Map<Integer, Double> movePenalty = tileHandler.getMyGeneral().getMovePenalty(tileHandler, fieldWrapper1 -> 1d);
+        Map<Integer, Double> movePenalty = tileHandler.getMyGeneral().getMoveScore(tileHandler, tile -> 0d, 0d);
         for (Tile tile : tileHandler.getTiles()) {
             if (!movePenalty.containsKey(tile.getIndex())) {
                 scores.add(tile.getIndex(), GARANTEED_NOT_HERE);

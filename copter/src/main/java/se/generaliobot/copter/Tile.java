@@ -14,6 +14,7 @@ public class Tile {
     private Tile[] neighbours;
     private boolean viewed = false;
     private TileType lastKnown = TileType.UNKNOWN;
+    private final Map<Direction, Tile> neighboursByPosition = new HashMap<>();
 
     public Tile(Field field) {
         this.field = field;
@@ -65,37 +66,40 @@ public class Tile {
         return field.getPosition().getRow();
     }
 
+
+    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> diff) {
+        return getMoveScore(tileHandler, diff, tileHandler.getConfig().getMandatoryMovePenalty());
+    }
+
     /**
-     * Key=Index, Value=Penalty score for moving to or null if obstacle
+     * Key=Index, Value=Score for moving to or null if obstacle
      */
-    public Map<Integer, Double> getMovePenalty(TileHandler tileHandler, Function<Tile, Double> diff) {
-        Map<Integer, Double> penalties = new HashMap<>();
-        penalties.put(field.getIndex(), 0d);
+    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> tileScore, Double moveScore) {
+        Map<Integer, Double> scoreMap = new HashMap<>();
+        scoreMap.put(field.getIndex(), 0d);
         Deque<Integer> que = new ArrayDeque<>();
-        que.add(getIndex());
+        que.add(field.getIndex());
         while (!que.isEmpty()) {
             Tile cursor = tileHandler.getTile(que.pop());
-            for (Field f : cursor.getField().getNeighbours()) {
-
-                Tile neighbour = tileHandler.getTile(f.getIndex());
+            for (Tile neighbour : cursor.getNeighbours()) {
                 if (neighbour.getField().isObstacle()) {
                     continue;
                 }
 
-                Double currentPenalty = penalties.get(neighbour.getIndex());
-                Double newPenalty = penalties.get(cursor.getIndex()) + diff.apply(neighbour) + tileHandler.getConfig().getMandatoryMovePenalty();
+                Double currentScore = scoreMap.get(neighbour.getIndex());
+                Double newScore = scoreMap.get(cursor.getIndex()) + tileScore.apply(neighbour) + moveScore;
 
-                if (currentPenalty == null || newPenalty < currentPenalty) {
-                    penalties.put(neighbour.getIndex(), newPenalty);
+                if (currentScore == null || newScore > currentScore) {
+                    scoreMap.put(neighbour.getIndex(), newScore);
                 }
 
-                if (currentPenalty == null) {
+                if (currentScore == null) {
                     que.addLast(neighbour.getIndex());
                 }
 
             }
         }
-        return penalties;
+        return scoreMap;
     }
 
     public TileType getLastKnown() {
@@ -136,4 +140,9 @@ public class Tile {
                 .filter(tile -> collect.get(tile) > 1)
                 .toArray(Tile[]::new);
     }
+
+    public Map<Direction, Tile> getNeighboursByPosition() {
+        return neighboursByPosition;
+    }
+
 }
