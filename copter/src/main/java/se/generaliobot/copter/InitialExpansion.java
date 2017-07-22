@@ -29,7 +29,7 @@ public class InitialExpansion implements MoveStrategy {
     }
 
     private Double getScore(Tile tile) {
-        return Arrays.asList(TileType.FOG, TileType.EMPTY).contains(tile.getLastKnown()) ? .5d : 0d;
+        return Arrays.asList(TileType.FOG, TileType.EMPTY).contains(tile.getLastKnown()) ? .89d : 0d;
     }
 
     @Override
