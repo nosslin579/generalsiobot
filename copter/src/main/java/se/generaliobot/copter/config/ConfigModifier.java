@@ -4,16 +4,16 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 enum ConfigModifier {
-    EMPTY_PENALTY(Config::getEmptyPenalty, Config::setEmptyPenalty),
-    ENEMY_PENALTY(Config::getEnemyPenalty, Config::setEnemyPenalty),
-    OBSTACLE_PENALTY(Config::getObstaclePenalty, Config::setCityPenalty),
-    OWN_PENALTY(Config::getOwnPenalty, Config::setOwnPenalty),
-    OWN_CITY_PENALTY(Config::getOwnCityPenalty, Config::setOwnCityPenalty),
-    CITY_PENALTY(Config::getCityPenalty, Config::setCityPenalty),
-    ENEMY_CITY_PENALTY(Config::getEnemyCityPenalty, Config::setEnemyCityPenalty),
-    FOG_PENALTY(Config::getFogPenalty, Config::setFogPenalty),
-    OWN_CROWN_PENALTY(Config::getOwnCrownPenalty, Config::setOwnCrownPenalty),
-    ENEMY_CROWN_PENALTY(Config::getEnemyCrownPenalty, Config::setEnemyCrownPenalty);
+    EMPTY_PENALTY(Config::getEmptyScore, Config::setEmptyScore),
+    ENEMY_PENALTY(Config::getEnemyScore, Config::setEnemyScore),
+    OBSTACLE_PENALTY(Config::getObstacleScore, Config::setCityScore),
+    OWN_PENALTY(Config::getOwnScore, Config::setOwnScore),
+    OWN_CITY_PENALTY(Config::getOwnCityScore, Config::setOwnCityScore),
+    CITY_PENALTY(Config::getCityScore, Config::setCityScore),
+    ENEMY_CITY_PENALTY(Config::getEnemyCityScore, Config::setEnemyCityScore),
+    FOG_PENALTY(Config::getFogScore, Config::setFogScore),
+    OWN_CROWN_PENALTY(Config::getOwnCrownScore, Config::setOwnCrownScore),
+    ENEMY_CROWN_PENALTY(Config::getEnemyCrownScore, Config::setEnemyCrownScore);
 
 
     private final Function<Config, Double> supplier;

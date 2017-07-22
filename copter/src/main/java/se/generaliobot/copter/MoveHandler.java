@@ -2,7 +2,9 @@ package se.generaliobot.copter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.joegreen.sergeants.framework.model.Player;
 import se.generaliobot.copter.locator.Locator;
+import se.generaliobot.copter.strategy.WinAttempt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,20 +22,26 @@ public class MoveHandler {
     }
 
     public void initNewGame() {
-        this.moveStrategy = InitialExpansion.create(tileHandler, locators);
+        this.moveStrategy = new InitialExpansion(tileHandler);
     }
 
     public void initializeNewRound(int roundNo) {
+        if (roundNo == 1) {
+            moveStrategy = new WinAttempt(tileHandler);
+        }
     }
 
 
-    public Optional<Move> getMove(int roundNo, int turnsToNextRound) {
+    public Optional<Move> getMove(int roundNo, int turnsToNextRound, Player enemy) {
         if (moveStrategy.isComplete()) {
             log.info("MoveStrategy complete {}", moveStrategy);
-            moveStrategy = InitialExpansion.create(tileHandler, locators);
+            if (roundNo > 0) {
+                moveStrategy = new WinAttempt(tileHandler);
+            } else {
+                moveStrategy = new InitialExpansion(tileHandler);
+            }
         }
-        Tile crownTile = getCrownTile();
-        return moveStrategy.getMove(crownTile).flatMap(this::validate);
+        return moveStrategy.getMove(getCrownTile()).flatMap(this::validate);
     }
 
     private Optional<Move> validate(Move move) {

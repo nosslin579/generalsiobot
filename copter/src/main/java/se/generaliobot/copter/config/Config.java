@@ -5,19 +5,21 @@ import org.springframework.util.Assert;
 public class Config {
     private int id;
     private Double rating = 1000d;
-    private Double emptyPenalty = 1d;
-    private Double enemyPenalty = 0.9d;
-    private Double obstaclePenalty = 100d;
-    private Double ownPenalty = 1.5d;
-    private Double ownCityPenalty = 0.4d;
-    private Double cityPenalty = 50d;
-    private Double enemyCityPenalty = 5d;
-    private Double fogPenalty = 1d;
-    private Double ownCrownPenalty = 2d;
-    private Double enemyCrownPenalty = -10d;
-    private Double mandatoryMovePenalty = 0.1d;
+    private Double emptyScore = 0.5d;
+    private Double enemyScore = 0.9d;
+    private Double obstacleScore = 0d;
+    private Double ownScore = .5d;
+    private Double ownCityScore = 0.4d;
+    private Double cityScore = 0d;
+    private Double enemyCityScore = 5d;
+    private Double fogScore = .5d;
+    private Double ownCrownScore = 0d;
+    private Double enemyCrownScore = 10d;
+    private Double mandatoryMoveScore = 1d;
     private int excludeEdgeDistance = 1;
-    private Double moveBackPenalty = 1d;
+    private Double WinAttemptOwnScore = .4d;
+    private Double WinAttemptEmptyScore = .2d;
+    private Double WinAttemptFogScore = .1d;
 
     public void setId(int id) {
         this.id = id;
@@ -35,92 +37,92 @@ public class Config {
         this.rating = rating;
     }
 
-    public Double getEmptyPenalty() {
-        return emptyPenalty;
+    public Double getEmptyScore() {
+        return emptyScore;
     }
 
-    public void setEmptyPenalty(Double emptyPenalty) {
-        this.emptyPenalty = emptyPenalty;
+    public void setEmptyScore(Double emptyScore) {
+        this.emptyScore = emptyScore;
     }
 
-    public Double getEnemyPenalty() {
-        return enemyPenalty;
+    public Double getEnemyScore() {
+        return enemyScore;
     }
 
-    public void setEnemyPenalty(Double enemyPenalty) {
-        this.enemyPenalty = enemyPenalty;
+    public void setEnemyScore(Double enemyScore) {
+        this.enemyScore = enemyScore;
     }
 
-    public Double getObstaclePenalty() {
-        return obstaclePenalty;
+    public Double getObstacleScore() {
+        return obstacleScore;
     }
 
-    public void setObstaclePenalty(Double obstaclePenalty) {
-        this.obstaclePenalty = obstaclePenalty;
+    public void setObstacleScore(Double obstacleScore) {
+        this.obstacleScore = obstacleScore;
     }
 
-    public Double getOwnPenalty() {
-        return ownPenalty;
+    public Double getOwnScore() {
+        return ownScore;
     }
 
-    public void setOwnPenalty(Double ownPenalty) {
-        this.ownPenalty = ownPenalty;
+    public void setOwnScore(Double ownScore) {
+        this.ownScore = ownScore;
     }
 
-    public Double getOwnCityPenalty() {
-        return ownCityPenalty;
+    public Double getOwnCityScore() {
+        return ownCityScore;
     }
 
-    public void setOwnCityPenalty(Double ownCityPenalty) {
-        this.ownCityPenalty = ownCityPenalty;
+    public void setOwnCityScore(Double ownCityScore) {
+        this.ownCityScore = ownCityScore;
     }
 
-    public Double getCityPenalty() {
-        return cityPenalty;
+    public Double getCityScore() {
+        return cityScore;
     }
 
-    public void setCityPenalty(Double cityPenalty) {
-        this.cityPenalty = cityPenalty;
+    public void setCityScore(Double cityScore) {
+        this.cityScore = cityScore;
     }
 
-    public Double getEnemyCityPenalty() {
-        return enemyCityPenalty;
+    public Double getEnemyCityScore() {
+        return enemyCityScore;
     }
 
-    public void setEnemyCityPenalty(Double enemyCityPenalty) {
-        this.enemyCityPenalty = enemyCityPenalty;
+    public void setEnemyCityScore(Double enemyCityScore) {
+        this.enemyCityScore = enemyCityScore;
     }
 
-    public Double getFogPenalty() {
-        return fogPenalty;
+    public Double getFogScore() {
+        return fogScore;
     }
 
-    public void setFogPenalty(Double fogPenalty) {
-        this.fogPenalty = fogPenalty;
+    public void setFogScore(Double fogScore) {
+        this.fogScore = fogScore;
     }
 
-    public Double getOwnCrownPenalty() {
-        return ownCrownPenalty;
+    public Double getOwnCrownScore() {
+        return ownCrownScore;
     }
 
-    public void setOwnCrownPenalty(Double ownCrownPenalty) {
-        this.ownCrownPenalty = ownCrownPenalty;
+    public void setOwnCrownScore(Double ownCrownScore) {
+        this.ownCrownScore = ownCrownScore;
     }
 
-    public Double getEnemyCrownPenalty() {
-        return enemyCrownPenalty;
+    public Double getEnemyCrownScore() {
+        return enemyCrownScore;
     }
 
-    public void setEnemyCrownPenalty(Double enemyCrownPenalty) {
-        this.enemyCrownPenalty = enemyCrownPenalty;
+    public void setEnemyCrownScore(Double enemyCrownScore) {
+        this.enemyCrownScore = enemyCrownScore;
     }
 
     public Double getMandatoryMovePenalty() {
-        return mandatoryMovePenalty;
+        return mandatoryMoveScore;
     }
 
-    public void setMandatoryMovePenalty(Double mandatoryMovePenalty) {
-        this.mandatoryMovePenalty = mandatoryMovePenalty;
+    public void setMandatoryMoveScore(Double mandatoryMoveScore) {
+        this.mandatoryMoveScore = mandatoryMoveScore;
     }
 
     public int getExcludeEdgeDistance() {
@@ -133,11 +135,27 @@ public class Config {
         this.excludeEdgeDistance = excludeEdgeDistance;
     }
 
-    public Double getMoveBackPenalty() {
-        return moveBackPenalty;
+    public Double getWinAttemptEmptyScore() {
+        return WinAttemptEmptyScore;
     }
 
-    public void setMoveBackPenalty(Double moveBackPenalty) {
-        this.moveBackPenalty = moveBackPenalty;
+    public void setWinAttemptEmptyScore(Double WinAttemptEmptyScore) {
+        this.WinAttemptEmptyScore = WinAttemptEmptyScore;
+    }
+
+    public Double getWinAttemptFogScore() {
+        return WinAttemptFogScore;
+    }
+
+    public void setWinAttemptFogScore(Double WinAttemptFogScore) {
+        this.WinAttemptFogScore = WinAttemptFogScore;
+    }
+
+    public Double getWinAttemptOwnScore() {
+        return WinAttemptOwnScore;
+    }
+
+    public void setWinAttemptOwnScore(Double WinAttemptOwnScore) {
+        this.WinAttemptOwnScore = WinAttemptOwnScore;
     }
 }

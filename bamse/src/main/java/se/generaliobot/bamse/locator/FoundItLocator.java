@@ -21,7 +21,7 @@ public class FoundItLocator implements Locator, FieldListener {
     public void onFieldFound(VisibleField fieldFound, TileHandler tileHandler) {
         if (fieldFound.isGeneral() && fieldFound.isOwnedByEnemy()) {
             log.info("Found enemy crown at {}", fieldFound.getPosition());
-            scores.setScore(fieldFound.getIndex(), 1000000d);
+            scores.setScore(fieldFound.getIndex(), 100000000000d);
         }
     }
 }

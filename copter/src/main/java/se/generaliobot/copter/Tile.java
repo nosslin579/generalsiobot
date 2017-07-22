@@ -67,14 +67,10 @@ public class Tile {
     }
 
 
-    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> diff) {
-        return getMoveScore(tileHandler, diff, tileHandler.getConfig().getMandatoryMovePenalty());
-    }
-
     /**
      * Key=Index, Value=Score for moving to or null if obstacle
      */
-    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> tileScore, Double moveScore) {
+    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> tileScore, Double movePenalty) {
         Map<Integer, Double> scoreMap = new HashMap<>();
         scoreMap.put(field.getIndex(), 0d);
         Deque<Integer> que = new ArrayDeque<>();
@@ -87,7 +83,7 @@ public class Tile {
                 }
 
                 Double currentScore = scoreMap.get(neighbour.getIndex());
-                Double newScore = scoreMap.get(cursor.getIndex()) + tileScore.apply(neighbour) + moveScore;
+                Double newScore = scoreMap.get(cursor.getIndex()) + tileScore.apply(neighbour) - movePenalty;
 
                 if (currentScore == null || newScore > currentScore) {
                     scoreMap.put(neighbour.getIndex(), newScore);

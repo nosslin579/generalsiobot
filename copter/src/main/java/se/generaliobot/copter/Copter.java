@@ -4,15 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.Actions;
 import pl.joegreen.sergeants.framework.Bot;
-import pl.joegreen.sergeants.framework.model.Field;
-import pl.joegreen.sergeants.framework.model.GameResult;
-import pl.joegreen.sergeants.framework.model.GameStarted;
-import pl.joegreen.sergeants.framework.model.GameState;
+import pl.joegreen.sergeants.framework.model.*;
 import se.generaliobot.copter.config.Config;
 import se.generaliobot.copter.fieldlisteners.FieldListener;
 import se.generaliobot.copter.fieldlisteners.SetViewedFieldListener;
 import se.generaliobot.copter.locator.*;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,7 +43,7 @@ public class Copter implements Bot {
             addBean(new ExcludeEdgeLocator(tileHandler));
             addBean(new UnreachableLocator(tileHandler));
             addBean(new MirrorOwnGeneralLocator(tileHandler));
-            addBean(new BorderEnemyLocator(tileHandler));
+            addBean(new BorderEnemyLocator());
 
             int width = newGameState.getColumns();
             int height = newGameState.getRows();
@@ -73,11 +71,20 @@ public class Copter implements Bot {
                 log.debug("New round");
                 moveHandler.initializeNewRound(roundNo);
             }
+            int myPlayerIndex = newGameState.getMyPlayerIndex();
+            Player enemy = newGameState.getPlayers().stream().filter(player -> player.getIndex().equals(myPlayerIndex)).findAny().get();
+            if (newGameState.getTurn() == 60) {
+                System.out.println("");
+            }
 
-            moveHandler.getMove(roundNo, turnsToNextRound).ifPresent(move -> {
+            Optional<Move> m = moveHandler.getMove(roundNo, turnsToNextRound, enemy);
+            if (m.isPresent()) {
+                Move move = m.get();
                 log.debug("At turn:{} doing move:{}", newGameState.getTurn(), move);
                 actions.move(move.getFrom(), move.getTo());
-            });
+            } else {
+                log.warn("No move at turn:{}", newGameState.getTurn());
+            }
         }
     }
 

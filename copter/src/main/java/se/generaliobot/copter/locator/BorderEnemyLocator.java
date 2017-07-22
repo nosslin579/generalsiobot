@@ -5,20 +5,17 @@ import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Field;
 import se.generaliobot.copter.Scores;
 import se.generaliobot.copter.Tile;
-import se.generaliobot.copter.TileHandler;
 import se.generaliobot.copter.TileType;
 import se.generaliobot.copter.fieldlisteners.FieldListener;
 
 import java.util.Arrays;
 
+/**
+ * Fog tiles around enemy tiles increase chance of crown
+ */
 public class BorderEnemyLocator implements Locator, FieldListener {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final TileHandler tileHandler;
     private Scores scores = new Scores();
-
-    public BorderEnemyLocator(TileHandler tileHandler) {
-        this.tileHandler = tileHandler;
-    }
 
     @Override
     public Scores getLocationScore() {

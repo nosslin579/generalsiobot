@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Scores {
     private final static Logger log = LoggerFactory.getLogger(Scores.class);
@@ -82,8 +83,8 @@ public class Scores {
                 .get();
     }
 
-    public Tile getMax(Tile[] tiles) {
-        return Arrays.stream(tiles)
+    public Tile getMax(Stream<Tile> tiles) {
+        return tiles
                 .filter(this::contains)
                 .reduce(this::getMax)
                 .get();

@@ -2,14 +2,9 @@ package se.generaliobot.copter;
 
 import pl.joegreen.sergeants.framework.model.Field;
 import pl.joegreen.sergeants.framework.model.FieldTerrainType;
-import se.generaliobot.copter.config.Config;
-
-import java.util.function.Function;
 
 public enum TileType {
-    UNKNOWN('U', config -> {
-        throw new IllegalStateException("Penalty for unknown not allowed");
-    }) {
+    UNKNOWN('U') {
         @Override
         TileType getByField(Field field) {
             if (!field.isVisible()) {
@@ -19,14 +14,14 @@ public enum TileType {
             } else if (field.asVisibleField().isBlank()) {
                 return EMPTY;
             } else if (field.asVisibleField().isCity()) {
-                return CITY;
+                return EMPTY_CITY;
             } else if (field.asVisibleField().isObstacle()) {
                 return MOUNTAIN;
             }
             throw new IllegalStateException("Unknown field " + field);
         }
     },
-    EMPTY(' ', Config::getEmptyPenalty) {
+    EMPTY(' ') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().hasOwner()) {
@@ -35,7 +30,7 @@ public enum TileType {
             return EMPTY;
         }
     },
-    ENEMY('-', Config::getEnemyPenalty) {
+    ENEMY('-') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().isOwnedByMe()) {
@@ -44,16 +39,16 @@ public enum TileType {
             return ENEMY;
         }
     },
-    OBSTACLE('M', Config::getObstaclePenalty) {
+    OBSTACLE('M') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible()) {
-                return field.asVisibleField().isCity() ? CITY : MOUNTAIN;
+                return field.asVisibleField().isCity() ? EMPTY_CITY : MOUNTAIN;
             }
             return OBSTACLE;
         }
     },
-    OWN('+', Config::getOwnPenalty) {
+    OWN('+') {
         @Override
         TileType getByField(Field field) {
             if (!field.isVisible() || field.asVisibleField().isOwnedByEnemy()) {
@@ -62,15 +57,8 @@ public enum TileType {
             return OWN;
         }
 
-        @Override
-        public Double getPenalty(Config config, int army) {
-            if (army == 1) {
-                return config.getOwnPenalty();
-            }
-            return config.getOwnPenalty() + army * -0.1d;
-        }
     },
-    OWN_CITY('C', Config::getOwnCityPenalty) {
+    OWN_CITY('C') {
         @Override
         TileType getByField(Field field) {
             if (field.asVisibleField().isOwnedByEnemy()) {
@@ -79,16 +67,16 @@ public enum TileType {
             return OWN_CITY;
         }
     },
-    CITY('C', Config::getCityPenalty) {
+    EMPTY_CITY('C') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().hasOwner()) {
                 return field.asVisibleField().isOwnedByMe() ? OWN_CITY : ENEMY_CITY;
             }
-            return CITY;
+            return EMPTY_CITY;
         }
     },
-    ENEMY_CITY('C', Config::getEnemyCityPenalty) {
+    ENEMY_CITY('C') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible() && field.asVisibleField().isOwnedByMe()) {
@@ -97,7 +85,7 @@ public enum TileType {
             return ENEMY_CITY;
         }
     },
-    FOG('?', Config::getFogPenalty) {
+    FOG('?') {
         @Override
         TileType getByField(Field field) {
             if (field.isVisible()) {
@@ -109,16 +97,14 @@ public enum TileType {
             return FOG;
         }
     },
-    MOUNTAIN('M', config -> 666d),
-    OWN_CROWN('X', Config::getOwnCrownPenalty),
-    ENEMY_CROWN('X', Config::getEnemyCrownPenalty);
+    MOUNTAIN('M'),
+    OWN_CROWN('X'),
+    ENEMY_CROWN('X');
 
     private final char symbol;
-    private final Function<Config, Double> configPenalty;
 
-    TileType(char symbol, Function<Config, Double> configPenalty) {
+    TileType(char symbol) {
         this.symbol = symbol;
-        this.configPenalty = configPenalty;
     }
 
     public char getSymbol() {
@@ -129,11 +115,4 @@ public enum TileType {
         return this;
     }
 
-    public Double getPenalty(Config config) {
-        return configPenalty.apply(config);
-    }
-
-    public Double getPenalty(Config config, int army) {
-        return getPenalty(config);
-    }
 }
