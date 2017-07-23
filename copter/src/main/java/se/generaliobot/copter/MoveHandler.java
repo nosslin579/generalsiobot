@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Player;
 import se.generaliobot.copter.locator.Locator;
+import se.generaliobot.copter.strategy.MicroExpansion;
 import se.generaliobot.copter.strategy.WinAttempt;
 
 import java.util.ArrayList;
@@ -26,8 +27,9 @@ public class MoveHandler {
     }
 
     public void initializeNewRound(int roundNo) {
-        if (roundNo == 1) {
-            moveStrategy = new WinAttempt(tileHandler);
+        log.info("New round {}", roundNo);
+        if (roundNo == 1 || roundNo == 2) {
+            moveStrategy = new MicroExpansion(tileHandler, 10 * roundNo);
         }
     }
 
@@ -35,7 +37,7 @@ public class MoveHandler {
     public Optional<Move> getMove(int roundNo, int turnsToNextRound, Player enemy) {
         if (moveStrategy.isComplete()) {
             log.info("MoveStrategy complete {}", moveStrategy);
-            if (roundNo > 0) {
+            if (roundNo > 1) {
                 moveStrategy = new WinAttempt(tileHandler);
             } else {
                 moveStrategy = new InitialExpansion(tileHandler);

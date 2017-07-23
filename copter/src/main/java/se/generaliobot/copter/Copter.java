@@ -68,7 +68,6 @@ public class Copter implements Bot {
             int turnOnRound = newGameState.getTurn() % 50;
             int turnsToNextRound = turnOnRound - 50;
             if (turnOnRound == 0) {
-                log.debug("New round");
                 moveHandler.initializeNewRound(roundNo);
             }
             int myPlayerIndex = newGameState.getMyPlayerIndex();

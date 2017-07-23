@@ -46,6 +46,21 @@ public class TileHandler {
             tile.setNeighbours(neighbours);
         }
 
+        //set distance to own crown
+        ownGeneral.setDistanceToOwnCrown(0);
+        Deque<Tile> distanceQue = new ArrayDeque<>();
+        distanceQue.add(ownGeneral);
+        while (!distanceQue.isEmpty()) {
+            Tile current = distanceQue.pollFirst();
+            for (Tile tile : current.getNeighbours()) {
+                int newDistance = current.getDistanceToOwnCrown() + 1;
+                if (!tile.getField().isObstacle() && newDistance < tile.getDistanceToOwnCrown()) {
+                    tile.setDistanceToOwnCrown(newDistance);
+                    distanceQue.addLast(tile);
+                }
+            }
+        }
+
         //set positions
         for (Tile tile : tiles) {
             Position position = tile.getField().getPosition();

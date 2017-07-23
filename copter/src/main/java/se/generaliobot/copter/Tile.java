@@ -15,6 +15,7 @@ public class Tile {
     private boolean viewed = false;
     private TileType lastKnown = TileType.UNKNOWN;
     private final Map<Direction, Tile> neighboursByPosition = new HashMap<>();
+    private int distanceToOwnCrown = Integer.MAX_VALUE;
 
     public Tile(Field field) {
         this.field = field;
@@ -141,4 +142,11 @@ public class Tile {
         return neighboursByPosition;
     }
 
+    public int getDistanceToOwnCrown() {
+        return distanceToOwnCrown;
+    }
+
+    public void setDistanceToOwnCrown(int distanceToOwnCrown) {
+        this.distanceToOwnCrown = distanceToOwnCrown;
+    }
 }
