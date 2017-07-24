@@ -17,11 +17,6 @@ public class WinAttempt implements MoveStrategy {
         this.config = tileHandler.getConfig();
     }
 
-    @Override
-    public boolean isComplete() {
-        return path != null && path.size() == 1;
-    }
-
 
     @Override
     public Optional<Move> getMove(Tile crown) {
@@ -34,7 +29,10 @@ public class WinAttempt implements MoveStrategy {
         if (!aggregation.isEmpty()) {
             return Optional.of(aggregation.pollFirst());
         }
-        return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Attack crown"));
+        if (path.size() > 1) {
+            return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Attack crown"));
+        }
+        return Optional.empty();
     }
 
     private Double getScore(Tile tile) {

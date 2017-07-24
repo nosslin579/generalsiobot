@@ -20,6 +20,9 @@ public class Config {
     private Double WinAttemptOwnScore = .4d;
     private Double WinAttemptEmptyScore = .2d;
     private Double WinAttemptFogScore = .1d;
+    private Double sniffFogScore = .1d;
+    private Double sniffEmptyScore = -.1d;
+    private Double sniffEnemyScore = -.2d;
 
     public void setId(int id) {
         this.id = id;
@@ -157,5 +160,29 @@ public class Config {
 
     public void setWinAttemptOwnScore(Double WinAttemptOwnScore) {
         this.WinAttemptOwnScore = WinAttemptOwnScore;
+    }
+
+    public Double getSniffFogScore() {
+        return sniffFogScore;
+    }
+
+    public void setSniffFogScore(Double sniffFogScore) {
+        this.sniffFogScore = sniffFogScore;
+    }
+
+    public Double getSniffEmptyScore() {
+        return sniffEmptyScore;
+    }
+
+    public void setSniffEmptyScore(Double sniffEmptyScore) {
+        this.sniffEmptyScore = sniffEmptyScore;
+    }
+
+    public Double getSniffEnemyScore() {
+        return sniffEnemyScore;
+    }
+
+    public void setSniffEnemyScore(Double sniffEnemyScore) {
+        this.sniffEnemyScore = sniffEnemyScore;
     }
 }

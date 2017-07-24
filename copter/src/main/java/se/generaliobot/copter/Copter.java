@@ -26,8 +26,8 @@ public class Copter implements Bot {
         this.config = config;
     }
 
-    public static Function<Actions, Bot> provider(Config config) {
-        return actions -> new Copter(actions, config);
+    public static Function<Actions, Bot> provider() {
+        return actions -> new Copter(actions, new Config());
     }
 
     @Override

@@ -1,7 +1,8 @@
-package se.generaliobot.copter;
+package se.generaliobot.copter.strategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.generaliobot.copter.*;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class InitialExpansion implements MoveStrategy {
     public Optional<Move> getMove(Tile crown) {
         Tile current = path.getLast();
         Map<Integer, Double> moveScore = crown.getMoveScore(tileHandler, this::getScore, 1d);
-        Scores scores = new Scores(moveScore, 10000d);
+        Scores scores = new Scores(moveScore, -10000d);
         tileHandler.getNextInline(path).map(tile -> new TileScore(tile, .1d)).ifPresent(scores::add);
         Tile to = scores.getMax(Arrays.stream(current.getNeighbours()));
         path.addLast(to);
@@ -29,12 +30,17 @@ public class InitialExpansion implements MoveStrategy {
     }
 
     private Double getScore(Tile tile) {
-        return Arrays.asList(TileType.FOG, TileType.EMPTY).contains(tile.getLastKnown()) ? .89d : 0d;
-    }
-
-    @Override
-    public boolean isComplete() {
-        return path.getLast().getMyArmySize() < 2;
+        if (tile.isMine()) {
+            return 0d;
+        }
+        switch (tile.getLastKnown()) {
+            case EMPTY:
+            case FOG:
+            case ENEMY:
+                return .89d;
+            default:
+                return -1000d;
+        }
     }
 
     @Override

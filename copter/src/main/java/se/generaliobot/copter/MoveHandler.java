@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.Player;
 import se.generaliobot.copter.locator.Locator;
-import se.generaliobot.copter.strategy.MicroExpansion;
-import se.generaliobot.copter.strategy.WinAttempt;
+import se.generaliobot.copter.strategy.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,24 +34,28 @@ public class MoveHandler {
 
 
     public Optional<Move> getMove(int roundNo, int turnsToNextRound, Player enemy) {
-        if (moveStrategy.isComplete()) {
-            log.info("MoveStrategy complete {}", moveStrategy);
-            if (roundNo > 1) {
-                moveStrategy = new WinAttempt(tileHandler);
-            } else {
-                moveStrategy = new InitialExpansion(tileHandler);
-            }
+        Tile crown = getCrownTile();
+
+        Optional<Move> ret = moveStrategy.getMove(crown).flatMap(this::validate);
+        if (ret.isPresent()) {
+            return ret;
         }
-        return moveStrategy.getMove(getCrownTile()).flatMap(this::validate);
+
+        log.info("Move strategy done: {}", moveStrategy);
+        if (roundNo == 0 || roundNo == 1) {
+            moveStrategy = new InitialExpansion(tileHandler);
+        } else if (roundNo == 2) {
+            moveStrategy = new Sniff(tileHandler);
+        } else {
+            moveStrategy = new WinAttempt(tileHandler);
+        }
+        return moveStrategy.getMove(crown).flatMap(this::validate);
+//                moveStrategy = new DoNothing();
+//            } else if (roundNo == 3) {
     }
 
     private Optional<Move> validate(Move move) {
-        if (isValid(move)) {
-            return Optional.of(move);
-        } else {
-            log.warn("Invalid move at turn:{} from:{} to:{}", tileHandler.getTurn(), tileHandler.getTile(move.getFrom()), tileHandler.getTile(move.getTo()));
-            return Optional.empty();
-        }
+        return isValid(move) ? Optional.of(move) : Optional.empty();
     }
 
     private boolean isValid(Move move) {
@@ -61,8 +64,15 @@ public class MoveHandler {
         }
         Tile from = tileHandler.getTile(move.getFrom());
         Tile to = tileHandler.getTile(move.getTo());
+
+        if (!to.getField().isVisible()) {
+            log.error("Moving to a field that is not visible, {}", move);
+            return false;
+        }
+
         if (to.getField().isObstacle()) {
-            throw new IllegalStateException("Can't move a mountain");
+            log.error("Can't move a mountain, {}", move);
+            return false;
         }
         if (from.getMyArmySize() < 2) {
             //not my tile or not enough army

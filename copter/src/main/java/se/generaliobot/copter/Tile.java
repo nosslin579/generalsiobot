@@ -14,6 +14,7 @@ public class Tile {
     private Tile[] neighbours;
     private boolean viewed = false;
     private TileType lastKnown = TileType.UNKNOWN;
+    private Deque<TileType> history = new ArrayDeque<>();
     private final Map<Direction, Tile> neighboursByPosition = new HashMap<>();
     private int distanceToOwnCrown = Integer.MAX_VALUE;
 
@@ -41,6 +42,7 @@ public class Tile {
         TileType updated = lastKnown.getByField(field);
         Optional<Field> ret = updated == lastKnown ? Optional.empty() : Optional.of(this.field);
         lastKnown = updated;
+        history.addLast(lastKnown);
         this.field = field;
         return ret;
     }
@@ -101,6 +103,10 @@ public class Tile {
 
     public TileType getLastKnown() {
         return lastKnown;
+    }
+
+    public Deque<TileType> getHistory() {
+        return history;
     }
 
     public Tile[] getNeighbours() {

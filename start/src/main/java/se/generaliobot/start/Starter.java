@@ -24,7 +24,7 @@ public class Starter {
     static {
         registeredBots.put("Aardvark", new RegisteredBot("dc42d51f-5b72-4611-9e39-302962b72b4f", Aardvark.provider(new se.generaliobot.aardvark.config.Config())));
         registeredBots.put("Bamse", new RegisteredBot("dc42d51f5b7246119e39302962b72b4f001", Bamse.provider(new se.generaliobot.bamse.config.Config())));
-        registeredBots.put("Copter", new RegisteredBot("dc42d51f5b7246119e39302962b72b4f004", Copter.provider(new se.generaliobot.copter.config.Config())));
+        registeredBots.put("Copter", new RegisteredBot("dc42d51f5b7246119e39302962b72b4f004", Copter.provider()));
     }
 
     public static void main(String[] args) throws InterruptedException {
