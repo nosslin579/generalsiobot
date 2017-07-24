@@ -23,9 +23,8 @@ public class Sniff extends AbstractMoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         if (path == null) {
-            Map<Integer, Double> moveScore = crown.getMoveScore(tileHandler, this::getScore, config.getMandatoryMovePenalty());
-            Scores scores = new Scores(moveScore, -1000d);
-            path = createPath(scores, tileHandler.getMyGeneral(), crown);
+            Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+            path = createPath(moveScore, tileHandler.getMyGeneral(), crown);
             removeFogAtTheEnd();
             cursor = path.getLast();
             aggregation = createAggregationMoves(path);
@@ -39,9 +38,8 @@ public class Sniff extends AbstractMoveStrategy {
             return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Sniff path"));
         }
 
-        Map<Integer, Double> moveScore = crown.getMoveScore(tileHandler, this::getScore, config.getMandatoryMovePenalty());
-        Scores scores = new Scores(moveScore, -1000d);
-        Deque<Tile> p = createPath(scores, cursor, crown);
+        Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+        Deque<Tile> p = createPath(moveScore, cursor, crown);
         Tile from = p.pollFirst();
         cursor = p.getFirst();
         return Optional.of(new Move(from, cursor, "Sniff sniff"));

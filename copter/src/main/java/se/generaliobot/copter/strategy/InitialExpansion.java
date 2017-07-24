@@ -4,7 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.generaliobot.copter.*;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Optional;
 
 public class InitialExpansion implements MoveStrategy {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -20,8 +23,7 @@ public class InitialExpansion implements MoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         Tile current = path.getLast();
-        Map<Integer, Double> moveScore = crown.getMoveScore(tileHandler, this::getScore, 1d);
-        Scores scores = new Scores(moveScore, -10000d);
+        Scores scores = crown.getMoveScore(this::getScore, 1d);
         tileHandler.getNextInline(path).map(tile -> new TileScore(tile, .1d)).ifPresent(scores::add);
         Tile to = scores.getMax(Arrays.stream(current.getNeighbours()));
         path.addLast(to);

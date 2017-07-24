@@ -4,7 +4,7 @@ import se.generaliobot.copter.Scores;
 
 public interface Locator {
 
-    Double GARANTEED_NOT_HERE = -6000000d;
+    Double GARANTEED_NOT_HERE = -1000d;
 
     Scores getLocationScore();
 }

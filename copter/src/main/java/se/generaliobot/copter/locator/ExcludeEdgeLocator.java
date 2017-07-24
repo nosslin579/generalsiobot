@@ -6,12 +6,10 @@ import se.generaliobot.copter.Scores;
 import se.generaliobot.copter.Tile;
 import se.generaliobot.copter.TileHandler;
 
-import java.util.HashMap;
-
 public class ExcludeEdgeLocator implements Locator {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private Scores scores = new Scores(new HashMap<>(), 0d);
+    private Scores scores = new Scores();
 
     public ExcludeEdgeLocator(TileHandler tileHandler) {
         int excludeEdgeDistance = tileHandler.getConfig().getExcludeEdgeDistance();
@@ -19,7 +17,7 @@ public class ExcludeEdgeLocator implements Locator {
         int yThreshold = tileHandler.getHeight() - excludeEdgeDistance;
         for (Tile tile : tileHandler.getTiles()) {
             if (tile.getX() < excludeEdgeDistance || tile.getX() >= xThreshold || tile.getY() < excludeEdgeDistance || tile.getY() >= yThreshold) {
-                scores.add(tile.getIndex(), -10d);
+                scores.add(tile, -10d);
             }
         }
         log.debug("Exclude edge: {}", scores.getPrettyPrint(tileHandler));

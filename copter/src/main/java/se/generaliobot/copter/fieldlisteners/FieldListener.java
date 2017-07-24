@@ -6,7 +6,7 @@ import se.generaliobot.copter.Tile;
 import se.generaliobot.copter.TileHandler;
 
 public interface FieldListener {
-    default void onFieldFound(VisibleField fieldFound, TileHandler tileHandler) {
+    default void onFieldFound(Tile tileFound, VisibleField field1) {
     }
 
     default void onFieldChange(Tile wrapper, Field old) {

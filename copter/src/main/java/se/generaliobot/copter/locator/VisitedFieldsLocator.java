@@ -2,7 +2,7 @@ package se.generaliobot.copter.locator;
 
 import pl.joegreen.sergeants.framework.model.VisibleField;
 import se.generaliobot.copter.Scores;
-import se.generaliobot.copter.TileHandler;
+import se.generaliobot.copter.Tile;
 import se.generaliobot.copter.fieldlisteners.FieldListener;
 
 public class VisitedFieldsLocator implements Locator, FieldListener {
@@ -19,7 +19,7 @@ public class VisitedFieldsLocator implements Locator, FieldListener {
     }
 
     @Override
-    public void onFieldFound(VisibleField fieldFound, TileHandler tileHandler) {
-        scores.setScore(fieldFound.getIndex(), GARANTEED_NOT_HERE);
+    public void onFieldFound(Tile tileFound, VisibleField field) {
+        scores.setScore(tileFound, GARANTEED_NOT_HERE);
     }
 }

@@ -39,7 +39,7 @@ public class CutOffLocator implements Locator, FieldListener {
                     log.debug("At turn {} Found cut off fields. Size:{} Player:{}", tileHandler.getTurn(), size, ownerIndex);
 
                     for (Tile cutOffField : cutOffFields.getProcessed()) {
-                        scores.add(cutOffField.getIndex(), GARANTEED_NOT_HERE);
+                        scores.add(cutOffField, GARANTEED_NOT_HERE);
                     }
                 }
 

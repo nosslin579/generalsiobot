@@ -21,9 +21,8 @@ public class WinAttempt implements MoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         if (path == null) {
-            Map<Integer, Double> moveScore = crown.getMoveScore(tileHandler, this::getScore, config.getMandatoryMovePenalty());
-            Scores scores = new Scores(moveScore, -1000d);
-            this.path = createPath(scores, crown, tileHandler.getMyGeneral());
+            Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+            this.path = createPath(moveScore, crown, tileHandler.getMyGeneral());
             this.aggregation = createAggregationMoves();
         }
         if (!aggregation.isEmpty()) {

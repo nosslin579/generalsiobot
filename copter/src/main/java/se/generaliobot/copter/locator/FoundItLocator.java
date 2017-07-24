@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.joegreen.sergeants.framework.model.VisibleField;
 import se.generaliobot.copter.Scores;
-import se.generaliobot.copter.TileHandler;
+import se.generaliobot.copter.Tile;
 import se.generaliobot.copter.fieldlisteners.FieldListener;
 
 public class FoundItLocator implements Locator, FieldListener {
@@ -18,10 +18,10 @@ public class FoundItLocator implements Locator, FieldListener {
     }
 
     @Override
-    public void onFieldFound(VisibleField fieldFound, TileHandler tileHandler) {
-        if (fieldFound.isGeneral() && fieldFound.isOwnedByEnemy()) {
-            log.info("Found enemy crown at {} on turn:{}", fieldFound.getPosition(), tileHandler.getTurn());
-            scores.setScore(fieldFound.getIndex(), 100000000000d);
+    public void onFieldFound(Tile tileFound, VisibleField field) {
+        if (field.isGeneral() && field.isOwnedByEnemy()) {
+            log.info("Found enemy crown at {}", field.getPosition());
+            scores.setScore(tileFound, 100000000000d);
         }
     }
 }

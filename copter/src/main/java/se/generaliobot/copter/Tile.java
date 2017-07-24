@@ -73,32 +73,32 @@ public class Tile {
     /**
      * Key=Index, Value=Score for moving to or null if obstacle
      */
-    public Map<Integer, Double> getMoveScore(TileHandler tileHandler, Function<Tile, Double> tileScore, Double movePenalty) {
-        Map<Integer, Double> scoreMap = new HashMap<>();
-        scoreMap.put(field.getIndex(), 0d);
-        Deque<Integer> que = new ArrayDeque<>();
-        que.add(field.getIndex());
+    public Scores getMoveScore(Function<Tile, Double> tileScore, Double movePenalty) {
+        Scores ret = new Scores(-1000d);
+        ret.setScore(this, 0d);
+        Deque<Tile> que = new ArrayDeque<>();
+        que.add(this);
         while (!que.isEmpty()) {
-            Tile cursor = tileHandler.getTile(que.pop());
+            Tile cursor = que.pop();
             for (Tile neighbour : cursor.getNeighbours()) {
                 if (neighbour.getField().isObstacle()) {
                     continue;
                 }
 
-                Double currentScore = scoreMap.get(neighbour.getIndex());
-                Double newScore = scoreMap.get(cursor.getIndex()) + tileScore.apply(neighbour) - movePenalty;
+                Double currentScore = ret.getScoreIfSet(neighbour);
+                Double newScore = ret.getScore(cursor) + tileScore.apply(neighbour) - movePenalty;
 
                 if (currentScore == null || newScore > currentScore) {
-                    scoreMap.put(neighbour.getIndex(), newScore);
+                    ret.setScore(neighbour, newScore);
                 }
 
                 if (currentScore == null) {
-                    que.addLast(neighbour.getIndex());
+                    que.addLast(neighbour);
                 }
 
             }
         }
-        return scoreMap;
+        return ret;
     }
 
     public TileType getLastKnown() {

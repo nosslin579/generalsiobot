@@ -109,14 +109,14 @@ public class TileHandler {
     public void update(GameState gameState) {
         Optional<Tile> captured = Optional.empty();
         for (Field newField : gameState.getFields()) {
-            Tile fw = tiles[newField.getIndex()];
-            if (!fw.isViewed() && newField.isVisible()) {
-                fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(newField.asVisibleField(), this));
+            Tile tile = tiles[newField.getIndex()];
+            if (!tile.isViewed() && newField.isVisible()) {
+                fieldListeners.forEach(fieldFound -> fieldFound.onFieldFound(tile, newField.asVisibleField()));
             }
-            if (fw.getField().isVisible() && !fw.getField().asVisibleField().isOwnedByEnemy() && newField.isVisible() && newField.asVisibleField().isOwnedByEnemy()) {
-                captured = Optional.of(fw);
+            if (tile.getField().isVisible() && !tile.getField().asVisibleField().isOwnedByEnemy() && newField.isVisible() && newField.asVisibleField().isOwnedByEnemy()) {
+                captured = Optional.of(tile);
             }
-            fw.updateField(newField).ifPresent(old -> fieldListeners.forEach(fieldListener -> fieldListener.onFieldChange(fw, old)));
+            tile.updateField(newField).ifPresent(old -> fieldListeners.forEach(fieldListener -> fieldListener.onFieldChange(tile, old)));
         }
         turn = gameState.getTurn();
         captured.ifPresent(cap -> fieldListeners.forEach(fieldListener -> fieldListener.onCaptured(this, cap)));

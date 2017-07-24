@@ -28,7 +28,7 @@ public class BorderEnemyLocator implements Locator, FieldListener {
         if (tile.isEnemy()) {
             Arrays.stream(tile.getSurroundingTiles())
                     .filter(t -> t.getLastKnown() == TileType.FOG)
-                    .forEach(t -> scores.setScore(t.getIndex(), 50d));
+                    .forEach(t -> scores.setScore(t, 50d));
         }
     }
 }

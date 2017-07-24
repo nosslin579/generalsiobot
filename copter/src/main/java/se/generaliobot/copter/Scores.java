@@ -11,81 +11,78 @@ import java.util.stream.Stream;
 public class Scores {
     private final static Logger log = LoggerFactory.getLogger(Scores.class);
     public static final Scores EMPTY = new Scores();
-    private final Map<Integer, Double> map;
+    private final Map<Tile, Double> map = new HashMap<>();
     private final Double defaultValue;
 
-    public Scores(Map<Integer, Double> map, Double defaultValue) {
-        this.map = map;
+    public Scores(Double defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-    public Scores(Map<Integer, Double> map) {
-        this(map, 0d);
-    }
-
     public Scores() {
-        this(new HashMap<>());
+        this(0d);
     }
 
 
-    public void setScore(int index, Double score) {
-        map.put(index, score);
+    public void setScore(Tile tile, Double score) {
+        map.put(tile, score);
     }
 
-    public Tile getMax(Tile fw1, Tile fw2) {
-        return map.get(fw1.getIndex()) > map.get(fw2.getIndex()) ? fw1 : fw2;
+    public Tile getMax(Tile t1, Tile t2) {
+        return getScore(t1) > getScore(t2) ? t1 : t2;
     }
 
     public Tile getMin(Tile fw1, Tile fw2) {
-        return map.get(fw1.getIndex()) < map.get(fw2.getIndex()) ? fw1 : fw2;
+        return getScore(fw1) < getScore(fw2) ? fw1 : fw2;
     }
 
-    public void log(Object source, int... index) {
-        for (int i : index) {
-            log.info("Scores from {} gave {} score {}", source.getClass().getSimpleName(), i, getScore(i));
+    public void log(Object source, Tile... tiles) {
+        for (Tile tile : tiles) {
+            log.info("Scores from {} gave {} score {}", source.getClass().getSimpleName(), tile, getScore(tile));
         }
     }
 
     public void add(TileScore score) {
-        add(score.getTile().getIndex(), score.getScore());
+        add(score.getTile(), score.getScore());
     }
 
     public void add(Scores scores) {
-        for (Map.Entry<Integer, Double> entry : scores.map.entrySet()) {
-            add(entry.getKey(), entry.getValue());
+        for (Map.Entry<Tile, Double> entry : map.entrySet()) {
+            add(entry.getKey(), scores.getScore(entry.getKey()));
         }
     }
 
-    public void add(Integer index, Double score) {
-        Double current = map.getOrDefault(index, defaultValue);
-        this.map.put(index, score + current);
+    public void add(Tile tile, Double score) {
+        Double current = map.getOrDefault(tile, defaultValue);
+        this.map.put(tile, score + current);
     }
 
-    public int getMax() {
+    public Tile getMax() {
         return map.entrySet().stream()
                 .reduce((e1, e2) -> e1.getValue() > e2.getValue() ? e1 : e2)
                 .get()
                 .getKey();
     }
 
-    public Double getScore(int index) {
-        return map.getOrDefault(index, defaultValue);
+    public Double getScore(Tile tile) {
+        return map.getOrDefault(tile, defaultValue);
+    }
+
+    public Double getScoreIfSet(Tile tile) {
+        return map.get(tile);
     }
 
     public boolean contains(Tile tile) {
-        return map.containsKey(tile.getIndex());
+        return map.containsKey(tile);
     }
 
     public Tile getMin(Tile[] tiles) {
         return Arrays.stream(tiles)
-                .filter(this::contains)
                 .reduce(this::getMin)
                 .get();
     }
 
     public Tile getMax(Stream<Tile> tiles) {
         return tiles
-                .filter(this::contains)
                 .reduce(this::getMax)
                 .get();
     }
@@ -97,7 +94,7 @@ public class Scores {
             if (tile.getX() == 0) {
                 sb.append(System.lineSeparator());
             }
-            Double scoreAsInt = map.get(tile.getIndex());
+            Double scoreAsInt = map.get(tile);
             String scoreAsString = String.valueOf(scoreAsInt == null ? "x" : scoreAsInt.intValue());
             if (scoreAsString.length() == 1) {
                 sb.append("  ");

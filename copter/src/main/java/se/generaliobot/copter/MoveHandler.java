@@ -7,6 +7,7 @@ import se.generaliobot.copter.locator.Locator;
 import se.generaliobot.copter.strategy.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,12 +88,13 @@ public class MoveHandler {
 
     public Tile getCrownTile() {
         Scores scores = new Scores();
+        Arrays.stream(tileHandler.getTiles()).forEach(tile -> scores.setScore(tile, 0d));
         locators.stream()
                 .map(Locator::getLocationScore)
                 .forEach(scores::add);
-        int mostLikelyIndex = scores.getMax();
-        log.debug("Guessing general is at index: {} with a score of {}", mostLikelyIndex, scores.getScore(mostLikelyIndex));
-        return tileHandler.getTile(mostLikelyIndex);
+        Tile mostLikely = scores.getMax();
+        log.debug("Guessing general is at: {} with a score of {}", mostLikely, scores.getScore(mostLikely));
+        return mostLikely;
     }
 
 
