@@ -25,8 +25,8 @@ public class WinAttempt implements MoveStrategy {
     public Optional<Move> getMove(Tile crown) {
         if (path == null) {
             Scores moveScore = crown.getMoveScore(this::getScore);
-            log.info(moveScore.getPrettyPrint(tileHandler));
-            this.path = createPath(moveScore, crown, tileHandler.getMyGeneral());
+            log.info(moveScore.getPrettyPrint(this.tileHandler));
+            this.path = createPath(moveScore, crown, this.tileHandler.getMyGeneral());
             this.aggregation = createAggregationMoves();
         }
         if (!aggregation.isEmpty()) {
@@ -36,6 +36,11 @@ public class WinAttempt implements MoveStrategy {
             return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Win attempt"));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public MoveStrategy createNew() {
+        return new WinAttempt(tileHandler);
     }
 
     private Double getScore(Tile tile) {

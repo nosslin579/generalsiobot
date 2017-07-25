@@ -6,53 +6,58 @@ import pl.joegreen.sergeants.framework.model.Player;
 import se.generaliobot.copter.locator.Locator;
 import se.generaliobot.copter.strategy.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class MoveHandler {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final List<Locator> locators = new ArrayList<>();
     private final TileHandler tileHandler;
 
-    private MoveStrategy moveStrategy;
+    private Deque<MoveStrategy> que = new LinkedList<>();
 
     public MoveHandler(TileHandler tileHandler) {
         this.tileHandler = tileHandler;
     }
 
     public void initNewGame() {
-        this.moveStrategy = new InitialExpansion(tileHandler);
+        que.add(new InitialExpansion(tileHandler));
     }
 
     public void initializeNewRound(int roundNo) {
         log.info("New round {}", roundNo);
-        if (roundNo == 1 || roundNo == 2) {
-            moveStrategy = new MicroExpansion(tileHandler, 10 * roundNo);
+        if (roundNo == 1) {
+            que.addLast(new InitialExpansion(tileHandler));
+            que.addLast(new MicroExpansion(tileHandler, 10));
+            que.addLast(new InitialExpansion(tileHandler));
         }
+
+        if (roundNo == 2) {
+            que.addLast(new MicroExpansion(tileHandler, 20));
+            que.addLast(new DogSniff(tileHandler));
+        }
+
+        if (tileHandler.getEnemyGeneral() != null) {
+            que.addLast(new WinAttempt(tileHandler));
+        }
+
     }
 
 
     public Optional<Move> getMove(int roundNo, int turnsToNextRound, Player enemy) {
         Tile crown = getCrownTile();
 
-        Optional<Move> ret = moveStrategy.getMove(crown).flatMap(this::validate);
+        Optional<Move> ret = que.getFirst().getMove(crown).flatMap(this::validate);
         if (ret.isPresent()) {
             return ret;
         }
+        MoveStrategy p = que.pollFirst();
+        log.info("Move strategy done: {}", p);
 
-        log.info("Move strategy done: {}", moveStrategy);
-        if (roundNo == 0 || roundNo == 1) {
-            moveStrategy = new InitialExpansion(tileHandler);
-        } else if (roundNo == 2) {
-            moveStrategy = new DogSniff(tileHandler);
-        } else {
-            moveStrategy = new WinAttempt(tileHandler);
+        if (que.isEmpty()) {
+            que.add(p.createNew());
         }
-        return moveStrategy.getMove(crown).flatMap(this::validate);
-//                moveStrategy = new DoNothing();
-//            } else if (roundNo == 3) {
+
+        return que.getFirst().getMove(crown).flatMap(this::validate);
     }
 
     private Optional<Move> validate(Move move) {

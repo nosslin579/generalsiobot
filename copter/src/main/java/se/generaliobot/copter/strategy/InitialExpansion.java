@@ -31,6 +31,11 @@ public class InitialExpansion implements MoveStrategy {
 
     }
 
+    @Override
+    public MoveStrategy createNew() {
+        return new InitialExpansion(tileHandler);
+    }
+
     private Double getScore(Tile tile) {
         if (tile.isMine()) {
             return 4d;

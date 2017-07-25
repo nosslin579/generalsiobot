@@ -22,13 +22,18 @@ public class MicroExpansion implements MoveStrategy {
         if (movesLeft-- == 0) {
             return Optional.empty();
         }
-        return Arrays.stream(tileHandler.getTiles())
+        return Arrays.stream(this.tileHandler.getTiles())
                 .filter(Tile::isMine)
                 .filter(tile -> tile.getMyArmySize() > 1)
                 .filter(this::canCaptureNeighbour)
                 .sorted((t1, t2) -> Integer.compare(t1.getDistanceToOwnCrown(), t2.getDistanceToOwnCrown()))
                 .findFirst()
                 .flatMap(this::convertToMove);
+    }
+
+    @Override
+    public MoveStrategy createNew() {
+        return new MicroExpansion(tileHandler, 1);
     }
 
     private boolean canCaptureNeighbour(Tile tile) {

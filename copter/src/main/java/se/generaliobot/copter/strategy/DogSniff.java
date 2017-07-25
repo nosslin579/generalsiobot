@@ -41,8 +41,18 @@ public class DogSniff extends AbstractMoveStrategy {
         Scores moveScore = crown.getMoveScore(this::getScore);
         Deque<Tile> p = createPath(moveScore, cursor, crown);
         Tile from = p.pollFirst();
+
+        //Simulator workaround
+        if (p.isEmpty()) {
+            return Optional.empty();
+        }
         cursor = p.getFirst();
         return Optional.of(new Move(from, cursor, "Sniff sniff"));
+    }
+
+    @Override
+    public MoveStrategy createNew() {
+        return new DogSniff(tileHandler);
     }
 
     private Double getScore(Tile tile) {
@@ -58,8 +68,8 @@ public class DogSniff extends AbstractMoveStrategy {
             case ENEMY:
                 return config.getSniffEnemyPenalty();
             case ENEMY_CROWN:
-                log.error("Not supposed to find enemy crown here");
-                return 0.9d;
+                log.info("Found enemy crown");
+                return 0d;
             default:
                 return 1000d;
         }

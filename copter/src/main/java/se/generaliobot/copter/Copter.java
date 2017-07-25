@@ -38,7 +38,7 @@ public class Copter implements Bot {
 
             addBean(new SetViewedFieldListener());
             addBean(new VisitedFieldsLocator());
-            addBean(new FoundItLocator());
+            addBean(new FoundItLocator(tileHandler));
             addBean(new CutOffLocator(tileHandler));
             addBean(new ExcludeEdgeLocator(tileHandler));
             addBean(new UnreachableLocator(tileHandler));

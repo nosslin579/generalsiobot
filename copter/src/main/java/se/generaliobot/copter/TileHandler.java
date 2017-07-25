@@ -19,6 +19,7 @@ public class TileHandler {
     private final int height;
     private List<FieldListener> fieldListeners = new ArrayList<>();
     private int turn = 0;
+    private Tile enemyGeneral;
 
     public TileHandler(Config config, Tile[] tiles, Tile myGeneral, int width, int height) {
         this.config = config;
@@ -159,5 +160,13 @@ public class TileHandler {
                 .findAny()
                 .map(Direction::getOpposite)
                 .map(neighboursByPosition::get);
+    }
+
+    public void setEnemyGeneral(Tile enemyGeneral) {
+        this.enemyGeneral = enemyGeneral;
+    }
+
+    public Tile getEnemyGeneral() {
+        return enemyGeneral;
     }
 }

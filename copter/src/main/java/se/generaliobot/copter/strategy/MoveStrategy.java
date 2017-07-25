@@ -9,4 +9,6 @@ public interface MoveStrategy {
 
     Optional<Move> getMove(Tile crown);
 
+    MoveStrategy createNew();
+
 }
