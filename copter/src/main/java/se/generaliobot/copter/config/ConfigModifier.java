@@ -4,17 +4,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 enum ConfigModifier {
-    EMPTY_PENALTY(Config::getEmptyScore, Config::setEmptyScore),
-    ENEMY_PENALTY(Config::getEnemyScore, Config::setEnemyScore),
-    OBSTACLE_PENALTY(Config::getObstacleScore, Config::setCityScore),
-    OWN_PENALTY(Config::getOwnScore, Config::setOwnScore),
-    OWN_CITY_PENALTY(Config::getOwnCityScore, Config::setOwnCityScore),
-    CITY_PENALTY(Config::getCityScore, Config::setCityScore),
-    ENEMY_CITY_PENALTY(Config::getEnemyCityScore, Config::setEnemyCityScore),
-    FOG_PENALTY(Config::getFogScore, Config::setFogScore),
-    OWN_CROWN_PENALTY(Config::getOwnCrownScore, Config::setOwnCrownScore),
-    ENEMY_CROWN_PENALTY(Config::getEnemyCrownScore, Config::setEnemyCrownScore);
-
+    V1(Config::getSniffEmptyPenalty, Config::setSniffEmptyPenalty),
+    V2(Config::getSniffEnemyPenalty, Config::setSniffEnemyPenalty),
+    V3(Config::getSniffFogPenalty, Config::setSniffFogPenalty),
+    V4(Config::getWinAttemptEmptyPenalty, Config::setWinAttemptEmptyPenalty),
+    V5(Config::getWinAttemptFogPenalty, Config::setWinAttemptFogPenalty),
+    V6(Config::getWinAttemptOwnPenalty, Config::setWinAttemptOwnPenalty);
 
     private final Function<Config, Double> supplier;
     private final BiConsumer<Config, Double> consumer;

@@ -73,7 +73,7 @@ public class Tile {
     /**
      * Key=Index, Value=Score for moving to or null if obstacle
      */
-    public Scores getMoveScore(Function<Tile, Double> tileScore, Double movePenalty) {
+    public Scores getMoveScore(Function<Tile, Double> penalty) {
         Scores ret = new Scores(-1000d);
         ret.setScore(this, 0d);
         Deque<Tile> que = new ArrayDeque<>();
@@ -85,17 +85,13 @@ public class Tile {
                     continue;
                 }
 
-                Double currentScore = ret.getScoreIfSet(neighbour);
-                Double newScore = ret.getScore(cursor) + tileScore.apply(neighbour) - movePenalty;
+                Double currentScore = ret.getScore(neighbour);
+                Double newScore = ret.getScore(cursor) - penalty.apply(neighbour);
 
-                if (currentScore == null || newScore > currentScore) {
+                if (newScore > currentScore) {
                     ret.setScore(neighbour, newScore);
-                }
-
-                if (currentScore == null) {
                     que.addLast(neighbour);
                 }
-
             }
         }
         return ret;

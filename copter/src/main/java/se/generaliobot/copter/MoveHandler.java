@@ -46,7 +46,7 @@ public class MoveHandler {
         if (roundNo == 0 || roundNo == 1) {
             moveStrategy = new InitialExpansion(tileHandler);
         } else if (roundNo == 2) {
-            moveStrategy = new Sniff(tileHandler);
+            moveStrategy = new DogSniff(tileHandler);
         } else {
             moveStrategy = new WinAttempt(tileHandler);
         }

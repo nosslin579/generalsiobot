@@ -7,15 +7,15 @@ import se.generaliobot.copter.config.Config;
 
 import java.util.*;
 
-public class Sniff extends AbstractMoveStrategy {
-    private final static Logger log = LoggerFactory.getLogger(Sniff.class);
+public class DogSniff extends AbstractMoveStrategy {
+    private final static Logger log = LoggerFactory.getLogger(DogSniff.class);
     private final TileHandler tileHandler;
     private final Config config;
     private Deque<Tile> path;
     private Deque<Move> aggregation;
     private Tile cursor;
 
-    public Sniff(TileHandler tileHandler) {
+    public DogSniff(TileHandler tileHandler) {
         this.tileHandler = tileHandler;
         this.config = tileHandler.getConfig();
     }
@@ -23,7 +23,7 @@ public class Sniff extends AbstractMoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         if (path == null) {
-            Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+            Scores moveScore = crown.getMoveScore(this::getScore);
             path = createPath(moveScore, tileHandler.getMyGeneral(), crown);
             removeFogAtTheEnd();
             cursor = path.getLast();
@@ -38,7 +38,7 @@ public class Sniff extends AbstractMoveStrategy {
             return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Sniff path"));
         }
 
-        Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+        Scores moveScore = crown.getMoveScore(this::getScore);
         Deque<Tile> p = createPath(moveScore, cursor, crown);
         Tile from = p.pollFirst();
         cursor = p.getFirst();
@@ -47,21 +47,21 @@ public class Sniff extends AbstractMoveStrategy {
 
     private Double getScore(Tile tile) {
         if (tile.isMine()) {
-            return 0d;
+            return 1d;
         }
         TileType lastKnown = tile.getLastKnown();
         switch (lastKnown) {
             case FOG:
-                return config.getSniffFogScore();
+                return config.getSniffFogPenalty();
             case EMPTY:
-                return config.getSniffEmptyScore();
+                return config.getSniffEmptyPenalty();
             case ENEMY:
-                return config.getSniffEnemyScore();
+                return config.getSniffEnemyPenalty();
             case ENEMY_CROWN:
                 log.error("Not supposed to find enemy crown here");
                 return 0.9d;
             default:
-                return -1000d;
+                return 1000d;
         }
     }
 

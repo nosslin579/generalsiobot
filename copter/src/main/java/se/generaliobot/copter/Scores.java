@@ -67,10 +67,6 @@ public class Scores {
         return map.getOrDefault(tile, defaultValue);
     }
 
-    public Double getScoreIfSet(Tile tile) {
-        return map.get(tile);
-    }
-
     public boolean contains(Tile tile) {
         return map.containsKey(tile);
     }

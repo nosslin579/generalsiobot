@@ -17,6 +17,6 @@ public class MirrorOwnGeneralLocator implements Locator {
         int x = tileHandler.getWidth() - myGeneral.getX() - 1;
         int y = tileHandler.getHeight() - myGeneral.getY() - 1;
         Tile mostLikely = tileHandler.getTile(x, y);
-        return mostLikely.getMoveScore(tile -> -1d, 0d);
+        return mostLikely.getMoveScore(tile -> 1d);
     }
 }

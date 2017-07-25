@@ -1,5 +1,7 @@
 package se.generaliobot.copter.strategy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.generaliobot.copter.*;
 import se.generaliobot.copter.config.Config;
 
@@ -7,6 +9,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class WinAttempt implements MoveStrategy {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final TileHandler tileHandler;
     private final Config config;
     private Deque<Tile> path;
@@ -21,7 +24,8 @@ public class WinAttempt implements MoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         if (path == null) {
-            Scores moveScore = crown.getMoveScore(this::getScore, config.getMandatoryMovePenalty());
+            Scores moveScore = crown.getMoveScore(this::getScore);
+            log.info(moveScore.getPrettyPrint(tileHandler));
             this.path = createPath(moveScore, crown, tileHandler.getMyGeneral());
             this.aggregation = createAggregationMoves();
         }
@@ -29,27 +33,27 @@ public class WinAttempt implements MoveStrategy {
             return Optional.of(aggregation.pollFirst());
         }
         if (path.size() > 1) {
-            return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Attack crown"));
+            return Optional.of(new Move(path.pollFirst(), path.getFirst(), "Win attempt"));
         }
         return Optional.empty();
     }
 
     private Double getScore(Tile tile) {
         if (tile.isMine()) {
-            return config.getWinAttemptOwnScore();
+            return config.getWinAttemptOwnPenalty();
         }
         TileType lastKnown = tile.getLastKnown();
         switch (lastKnown) {
             case EMPTY:
-                return config.getWinAttemptEmptyScore();
+                return config.getWinAttemptEmptyPenalty();
             case FOG:
-                return config.getWinAttemptFogScore();
+                return config.getWinAttemptFogPenalty();
             case ENEMY:
-                return 0d;
+                return 1d;
             case ENEMY_CROWN:
-                return 0.9d;
+                return 0.1d;
             default:
-                return -1000d;
+                return 1000d;
         }
     }
 

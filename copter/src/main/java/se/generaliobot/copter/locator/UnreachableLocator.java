@@ -11,7 +11,7 @@ public class UnreachableLocator implements Locator {
     private final Scores scores;
 
     public UnreachableLocator(TileHandler tileHandler) {
-        scores = tileHandler.getMyGeneral().getMoveScore(tile -> 0d, 0d);
+        scores = tileHandler.getMyGeneral().getMoveScore(tile -> 0.01d);
     }
 
     @Override

@@ -23,8 +23,8 @@ public class InitialExpansion implements MoveStrategy {
     @Override
     public Optional<Move> getMove(Tile crown) {
         Tile current = path.getLast();
-        Scores scores = crown.getMoveScore(this::getScore, 1d);
-        tileHandler.getNextInline(path).map(tile -> new TileScore(tile, .1d)).ifPresent(scores::add);
+        Scores scores = crown.getMoveScore(this::getScore);
+        tileHandler.getNextInline(path).map(tile -> new TileScore(tile, 1d)).ifPresent(scores::add);
         Tile to = scores.getMax(Arrays.stream(current.getNeighbours()));
         path.addLast(to);
         return Optional.of(new Move(current, to, getClass().getSimpleName()));
@@ -33,15 +33,15 @@ public class InitialExpansion implements MoveStrategy {
 
     private Double getScore(Tile tile) {
         if (tile.isMine()) {
-            return 0d;
+            return 4d;
         }
         switch (tile.getLastKnown()) {
             case EMPTY:
             case FOG:
             case ENEMY:
-                return .89d;
+                return 1d;
             default:
-                return -1000d;
+                return 1000d;
         }
     }
 
