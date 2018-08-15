@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "id": "id2",
+  "mapWidth": 18,
+  "mapHeight": 18,
+  "usernames": [],
+  "stars": [],
+  "cities": [],
+  "cityArmies": [],
+  "generals": [
+    57,
+    266
+  ],
+  "mountains": [],
+  "moves": [],
+  "afks": [],
+  "teams": null
+}
